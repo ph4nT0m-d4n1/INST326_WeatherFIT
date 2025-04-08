@@ -1,6 +1,6 @@
 # INST326_Final
 
-##Team Members
+## Team Members
 - Danny Mallya
 - Bella Konrad
 - Jaden Shin
