@@ -97,6 +97,35 @@ class Forecast():
                 \nTemperature: {self.temperature}\nHumidity: {self.humidity}\nPrecipitation: {self.precipitation_chance}\
                 \nWind Speed: {self.wind_speed}\nCloud Coverage: {self.cloud_coverage}"
 
+class Outfits:
+    """This class will display outfits that reflects on the forecast
+    Args:
+       forecast that has data details"""
+    def __init__(self,forecast):
+        self.forecast = forecast
+        
+    def outfit_options(self):
+        outfit = []
+        temp = self.forecast.temperature
+        humidity = self.forecast.humidity 
+        wind = self.forecast.wind_speed
+        rain_chance = self.forecast.precipitation
+        
+        if temp < 40:
+            outfit += ['sweater','pants','scarf']
+        elif temp < 60:
+            outfit += ['shirt','pants']
+        elif temp < 75:
+            outfit += ['T-shirt','shorts']
+        else:
+            outfit += ['T-shirt','shorts','sandals']
+            
+        if wind > 20:
+            outfit.append('coat')
+            
+        if humidity > 80 and temp > 70:
+            outfit.append('wear clothing that prevents heat strokes')
+
 if __name__ == "__main__":
     weather = Forecast()
     weather.get_current_forecast(38.9807, -76.9369) # Example coordinates for College Park, MD
