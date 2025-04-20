@@ -126,6 +126,14 @@ class Outfits:
         if humidity > 80 and temp > 70:
             outfit.append('wear clothing that prevents heat strokes')
 
+        if rain_chance > 50:
+            outfit+=['umbrella','rain jacket']
+        elif rain_chance == 'snow':
+            outfit +=['snow coat','gloves','scarf','snow pants']
+            
+        return outfit
+       
+
 if __name__ == "__main__":
     weather = Forecast()
     weather.get_current_forecast(38.9807, -76.9369) # Example coordinates for College Park, MD
