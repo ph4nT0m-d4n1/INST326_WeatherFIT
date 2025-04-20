@@ -11,10 +11,13 @@ Professor Cruz
 This program reads data from a weather api and determines the upcoming forecast. 
 The app will then suggest clothing that would be appropriate for the weather condtions.
 """
+#install the following required packages: use pip or pip3 depending on your system
+#pip install openmeteo-requests
+#pip install requests-cache retry-requests numpy pandas
+
 import openmeteo_requests
 
 import requests_cache
-import pandas as pd
 from retry_requests import retry
 
 class Forecast():
