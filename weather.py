@@ -33,17 +33,6 @@ class Forecast():
     """
     
     def __init__(self, date=None, temperature=None, humidity=None, precipitation_chance=None, cloud_coverage=None, wind_speed=None):
-        """This function initializes key attributes
-
-            Attributes:
-                date (str): the date for the forecast
-                temperature (float): the temperature in fahrenheit for the day
-                humidity (float): the humidity percentage for the day
-                precipitation_chance (float): chance of precipitation for the day
-                precipitation_type (str): type of precipitation for the day (if any)
-                cloud_coverage (float): percentage of cloud coverage for the day
-                wind_speed (float): The wind speed in miles per hour for the day
-        """
         self.date = date
         self.temperature = temperature
         self.humidity = humidity
@@ -51,10 +40,15 @@ class Forecast():
         self.cloud_coverage = cloud_coverage
         self.wind_speed = wind_speed
     
+    def __repr__(self):
+        return f"The current forecast: \
+                \nTemperature: {self.temperature}\nHumidity: {self.humidity}\nPrecipitation: {self.precipitation_chance}\
+                \nWind Speed: {self.wind_speed}\nCloud Coverage: {self.cloud_coverage}\n"
+
     def get_current_forecast(self, latitude, longitude):
         """This function gets the data from the api
 
-            Attributes:
+            Args:
                 latitude (float): the latitude of the location
                 longitude (float): the longitude of the location
         """
@@ -91,16 +85,18 @@ class Forecast():
         self.wind_speed = current.Variables(3).Value()
         self.cloud_coverage = current.Variables(4).Value()
         
-    
-    def __repr__(self):
-        return f"The current forecast: \
-                \nTemperature: {self.temperature}\nHumidity: {self.humidity}\nPrecipitation: {self.precipitation_chance}\
-                \nWind Speed: {self.wind_speed}\nCloud Coverage: {self.cloud_coverage}"
 
-class Outfits:
-    """This class will display outfits that reflects on the forecast
+class Outfits():
+    """This class will display outfits that reflect the forecast and user preferences.
+    
     Args:
-       forecast that has data details"""
+        forecast (Forecast): The weather forecast object containing weather details.
+        user_preferences (dict): A dictionary of user preferences for clothing.
+        activity_type (str): The type of activity (e.g., casual, formal, sports).
+    
+    Returns
+        outfit (list): A list of clothing items suitable for the weather and user preferences.
+    """
     def __init__(self,forecast):
         self.forecast = forecast
         
@@ -109,7 +105,7 @@ class Outfits:
         temp = self.forecast.temperature
         humidity = self.forecast.humidity 
         wind = self.forecast.wind_speed
-        rain_chance = self.forecast.precipitation
+        rain_chance = self.forecast.precipitation_chance
         
         if temp < 40:
             outfit += ['sweater','pants','scarf']
@@ -131,10 +127,13 @@ class Outfits:
         elif rain_chance == 'snow':
             outfit +=['snow coat','gloves','scarf','snow pants']
             
-        return outfit
+        return f"Recommended outfit: {', '.join(outfit)}"
        
 
 if __name__ == "__main__":
     weather = Forecast()
-    weather.get_current_forecast(38.9807, -76.9369) # Example coordinates for College Park, MD
+    weather.get_current_forecast(38.9807, -76.9369) # example coordinates for College Park, MD
+    outfit = Outfits(weather)
+    outfit = outfit.outfit_options()
     print(weather)
+    print(outfit)
