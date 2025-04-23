@@ -16,10 +16,11 @@ The app will then suggest clothing that would be appropriate for the weather con
 #pip install requests-cache retry-requests numpy pandas
 
 import openmeteo_requests
-
 import requests_cache
 import requests
+
 from retry_requests import retry
+from datetime import datetime
 
 
 class Forecast():
@@ -34,18 +35,20 @@ class Forecast():
             wind_speed (float): The wind speed in miles per hour for the day
     """
     
-    def __init__(self, date=None, temperature=None, humidity=None, precipitation_chance=None, cloud_coverage=None, wind_speed=None):
+    def __init__(self, date=None, temperature=None, feels_like=None, humidity=None, precipitation_chance=None, cloud_coverage=None, wind_speed=None):
         self.date = date
         self.temperature = temperature
+        self.feels_like = feels_like
         self.humidity = humidity
         self.precipitation_chance = precipitation_chance
         self.cloud_coverage = cloud_coverage
         self.wind_speed = wind_speed
     
     def __repr__(self):
-        return f"The current forecast: \
-                \nTemperature: {self.temperature}\nHumidity: {self.humidity}\nPrecipitation: {self.precipitation_chance}\
-                \nWind Speed: {self.wind_speed}\nCloud Coverage: {self.cloud_coverage}\n"
+        return f"Date & Time: {self.date}\n\
+                \nThe current weather:\
+                \nTemperature: {round(self.temperature)}°F\nFeels Like: {round(self.feels_like)}°F\nHumidity: {self.humidity}\
+                \nPrecipitation: {self.precipitation_chance}\nWind Speed: {round(self.wind_speed)} mph\nCloud Coverage: {self.cloud_coverage}\n"
 
     def get_current_forecast(self, latitude, longitude):
         """This function gets the data from the api
@@ -65,7 +68,7 @@ class Forecast():
             "latitude": latitude,
             "longitude": longitude,
             "models": "best_match",
-            "current": ["temperature_2m", "relative_humidity_2m", "precipitation", "wind_speed_10m", "cloud_cover"],
+            "current": ["temperature_2m", "relative_humidity_2m", "precipitation", "wind_speed_10m", "cloud_cover", "apparent_temperature"],
             "timezone": "auto",
             "forecast_days": 1,
             "wind_speed_unit": "mph",
@@ -80,12 +83,14 @@ class Forecast():
         
         current = response.Current()
         
+        self.date = datetime.now().strftime("%Y-%m-%d, %H:%M")
         self.temperature = current.Variables(0).Value()
         self.temperature = current.Variables(0).Value()
         self.humidity = current.Variables(1).Value()
         self.precipitation_chance = current.Variables(2).Value()
         self.wind_speed = current.Variables(3).Value()
         self.cloud_coverage = current.Variables(4).Value()
+        self.feels_like = current.Variables(5).Value()
         
 def get_location(city:str, state:str=None, max_results=10):
     """This function gets the location from the user
@@ -101,13 +106,13 @@ def get_location(city:str, state:str=None, max_results=10):
     geo_location = requests.get(f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count={max_results}&language=en&format=json")
     
     if geo_location.status_code == 200:
-        print("Location found!")
         data = geo_location.json()
         for result in data['results']:
             if state != None and result['admin1'] == state:
                 latitude = result['latitude']
                 longitude = result['longitude']
-                print(f"Location coordinates: {latitude}°N {longitude}°E")
+                print(f"Location: {result['name']}")
+                print(f"Coordinates: {latitude}°N {longitude}°E")
                 return latitude, longitude
     
         first_result = data['results'][0]
