@@ -18,7 +18,9 @@ The app will then suggest clothing that would be appropriate for the weather con
 import openmeteo_requests
 
 import requests_cache
+import requests
 from retry_requests import retry
+
 
 class Forecast():
     """This class is used to get the weather forecast for a given location and date.
@@ -73,7 +75,7 @@ class Forecast():
         responses = openmeteo.weather_api(url, params=params)
         
         response = responses[0]
-        print(f"Coordinates: {response.Latitude()}°N {response.Longitude()}°E")
+        # print(f"Coordinates: {response.Latitude()}°N {response.Longitude()}°E")
         print(f"Timezone: {response.Timezone()}{response.TimezoneAbbreviation()}\n")
         
         current = response.Current()
@@ -85,55 +87,42 @@ class Forecast():
         self.wind_speed = current.Variables(3).Value()
         self.cloud_coverage = current.Variables(4).Value()
         
-
-class Outfits():
-    """This class will display outfits that reflect the forecast and user preferences.
-    
-    Args:
-        forecast (Forecast): The weather forecast object containing weather details.
-        user_preferences (dict): A dictionary of user preferences for clothing.
-        activity_type (str): The type of activity (e.g., casual, formal, sports).
-    
-    Returns
-        outfit (list): A list of clothing items suitable for the weather and user preferences.
+def get_location(city:str, state:str=None, max_results=10):
+    """This function gets the location from the user
+        Args:
+            city (str): the name of the city
+            max_results (int): the maximum number of results to return
+            state (str): the name of the State
+        Returns:
+            latitude (float): the latitude of the location
+            longitude (float): the longitude of the location
     """
-    def __init__(self,forecast):
-        self.forecast = forecast
+    city = city.replace(" ", "+")
+    geo_location = requests.get(f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count={max_results}&language=en&format=json")
+    
+    if geo_location.status_code == 200:
+        print("Location found!")
+        data = geo_location.json()
+        for result in data['results']:
+            if state != None and result['admin1'] == state:
+                latitude = result['latitude']
+                longitude = result['longitude']
+                print(f"Location coordinates: {latitude}°N {longitude}°E")
+                return latitude, longitude
+    
+        first_result = data['results'][0]
+        latitude = first_result['latitude']
+        longitude = first_result['longitude']
         
-    def outfit_options(self):
-        outfit = []
-        temp = self.forecast.temperature
-        humidity = self.forecast.humidity 
-        wind = self.forecast.wind_speed
-        rain_chance = self.forecast.precipitation_chance
+        print(f"Coordinates for first result: {latitude}°N {longitude}°E")
+        return latitude, longitude
         
-        if temp < 40:
-            outfit += ['sweater','pants','scarf']
-        elif temp < 60:
-            outfit += ['shirt','pants']
-        elif temp < 75:
-            outfit += ['T-shirt','shorts']
-        else:
-            outfit += ['T-shirt','shorts','sandals']
-            
-        if wind > 20:
-            outfit.append('coat')
-            
-        if humidity > 80 and temp > 70:
-            outfit.append('wear clothing that prevents heat strokes')
-
-        if rain_chance > 50:
-            outfit+=['umbrella','rain jacket']
-        elif rain_chance == 'snow':
-            outfit +=['snow coat','gloves','scarf','snow pants']
-            
-        return f"Recommended outfit: {', '.join(outfit)}"
-       
+    elif geo_location.status_code != 200:
+        print(f"Error: {geo_location.status_code}")
+        return None
 
 if __name__ == "__main__":
     weather = Forecast()
-    weather.get_current_forecast(38.9807, -76.9369) # example coordinates for College Park, MD
-    outfit = Outfits(weather)
-    outfit = outfit.outfit_options()
+    location = get_location("College Park", "Maryland") 
+    weather.get_current_forecast(location[0], location[1]) 
     print(weather)
-    print(outfit)

@@ -18,9 +18,9 @@ pip install requests-cache retry-requests numpy pandas
 - Marvin Gomez Molina
 
 ### To-Do
-- [x] find and add API for weather
-- [x] add required packages
-- [x] add function for current (immediate) weather
-- [] add function for daily / hourly weather
-- [] add function to convert city names into latitudes and longitudes (using Open-meteo's geocoding API)
-- [] expand outfit class
+- [x]find and add API for weather
+- [x]add required packages
+- [x]add function for current (immediate) weather
+- [x]add function to convert city names into latitudes and longitudes (using Open-meteo's geocoding API)
+- []add function for daily / hourly weather
+- []expand outfit class
