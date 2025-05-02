@@ -164,6 +164,33 @@ class Forecast():
         self.min_temperature = daily.Variables(1).ValuesAsNumpy()[0]
         self.max_feels_like = daily.Variables(2).ValuesAsNumpy()[0]
         self.min_feels_like = daily.Variables(3).ValuesAsNumpy()[0]
+    
+    def get_weather_summary(self):
+        """Generates a summary of the current weather conditions.
+        
+        Returns:
+            str: a simple readable summary of the current weather conditions.
+        """
+        pass
+    
+    def get_comfort_index(self):
+        """Calculates a comfort index based on temperature, humidity, and wind speed.
+        
+        Returns:
+            float: a comfort index value that indicates how comfortable the weather is.
+        """
+        pass
+    
+    def compare_with_yesterday(self, yesterday_forecast):
+        """Compares today's forecast with yesterday's forecast.
+        
+        Args:
+            past_weather (Forecast): a Forecast object containing yesterday's weather data.
+        
+        Returns:
+            str: a comparison of today's weather with yesterday's weather.
+        """
+        pass
         
 
 
