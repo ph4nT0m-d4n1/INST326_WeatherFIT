@@ -28,6 +28,17 @@ class Outfits():
      
     def __init__(self, forecast:w.Forecast,user_preferences=None):
         self.forecast = forecast
+        self.temp = self.forecast.temperature
+        self.high_temp = self.forecast.max_temperature
+        self.low_temp = self.forecast.min_temperature
+        self.humidity = self.forecast.humidity
+        self.wind = self.forecast.wind_speed
+        self.precipitation_chance = self.forecast.precipitation_chance
+        self.rain = self.forecast.rain
+        self.showers = self.forecast.showers
+        self.snowfall = self.forecast.snowfall
+        self.cloud_coverage = self.forecast.cloud_coverage
+        self.uv_index_max = self.forecast.uv_index_max
          
     def outfit_options(self):
         """This function generates outfit options based on the weather forecast.
@@ -41,42 +52,38 @@ class Outfits():
         outfit = []  # list to store clothing recommendations
         
         # extract weather data from the forecast object
-        temp = self.forecast.temperature
-        humidity = self.forecast.humidity
-        wind = self.forecast.wind_speed
-        precipitation_chance = self.forecast.precipitation_chance
-        rain = self.forecast.rain
-        showers = self.forecast.showers
-        snowfall = self.forecast.snowfall
+        
          
         # temperature-based clothing recommendations
-        if temp < 40:
-            outfit += ['heavy sweater', 'pants', 'scarf']
-        elif temp < 60:
-            outfit += ['light sweater', 'pants']
-        elif temp < 75:
+        if self.temp < 32:
+            outfit += ['puffer jacket', 'sweater', 'thermals', 'thick pants']
+        elif self.temp < 40:
+            outfit += ['heavy sweater', 'sweatpants', ]
+        elif self.temp < 60:
+            outfit += ['light sweater', 'jeans']
+        elif self.temp < 75:
             outfit += ['T-shirt', 'shorts']
         else:
             outfit += ['T-shirt', 'shorts', 'sandals']
              
         # wind-based recommendations
-        if wind > 20:
+        if self.wind > 20:
             outfit.append('windbreaker coat')
              
         # humidity recommendations for hot, humid days
-        if humidity > 80 and temp > 70:
-            outfit.append('lightweight, breathable clothing')
+        if self.humidity >= 80 and self.temp > 70:
+            outfit.append('lightweight/breathable clothing')
         
         # precipitation recommendations
-        if precipitation_chance > 50:
+        if self.precipitation_chance > 50:
             outfit.append('umbrella')
              
         # specific precipitation type recommendations
-        if rain > 0:
+        if self.rain > 0:
             outfit.append('rain boots')
-        if showers > 0:
+        if self.showers > 0:
             outfit.append('rain jacket')
-        if snowfall > 0:
+        if self.snowfall > 0:
             outfit.append('snow boots')
                       
         return f"Recommended outfit: {', '.join(outfit)}"
@@ -98,8 +105,8 @@ class Outfits():
         Returns:
             str: layering advice based on the difference between daily max and min temperatures.
         """
-        pass
-    
+        
+        pass               
     def recommended_accessories(self):
         """Suggests accessories based on weather conditions.
         
@@ -108,21 +115,23 @@ class Outfits():
         """
         accessories = []
         
-        temp = self.forecast.temperature
-        cloud_coverage = self.forecast.cloud_coverage
-        
         #checking primarily for extreme weather that needs a special accessory
-        if cloud_coverage == 0:
+        if self.cloud_coverage == 0:
             accessories.append('sun hat')
-        elif cloud_coverage < 0.5:
+        elif self.cloud_coverage < 0.5:
             accessories.append('sunglasses')
         
-        if temp < 40:
+        if self.temp < 35:
             accessories.append('gloves')
             accessories.append('scarf')
-            accessories.append('knit hat')
-        if temp > 70 and cloud_coverage != 0:
+            accessories.append('beanie')
+        if self.temp >= 70 and self.cloud_coverage != 0:
             accessories.append('baseball cap')
+                    
+        if self.uv_index_max > 2 and self.uv_index_max < 6 and self.cloud_coverage < 0.5:
+            accessories.append('30+ SPF sunscreen')
+        elif self.uv_index_max <= 10 and self.cloud_coverage < 0.25:
+            accessories.append('50+ SPF suncreen')
             
         if not accessories:
            return f"The weather is agreeable today. Your accessories are up to you!"
@@ -141,3 +150,5 @@ if __name__ == "__main__":
     outfit_recommender = Outfits(weather)
     outfit_suggestion = outfit_recommender.outfit_options()
     print(outfit_suggestion)
+    accessories_suggestion = outfit_recommender.recommended_accessories()
+    print(accessories_suggestion)

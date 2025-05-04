@@ -42,6 +42,7 @@ class Forecast():
             rain (float): amount of rain in inches
             showers (float): amount of showers in inches
             snowfall (float): amount of snowfall in inches
+            uv_index_max(float): highest uv index rating for the day
     """
     def __init__(self, 
                 date=None, 
@@ -57,7 +58,8 @@ class Forecast():
                 wind_speed=None,
                 rain=None,
                 showers=None,
-                snowfall=None
+                snowfall=None,
+                uv_index_max=None
             ):
         self.date = date
         self.temperature = temperature
@@ -73,6 +75,7 @@ class Forecast():
         self.rain = rain
         self.showers = showers
         self.snowfall = snowfall
+        self.uv_index_max = uv_index_max
     
     def __repr__(self):
         # basic weather information
@@ -82,7 +85,8 @@ class Forecast():
                 \nPrecipitation Chance: {round(self.precipitation_chance)}%\nWind Speed: {round(self.wind_speed)} mph\
                 \nCloud Coverage: {round(self.cloud_coverage)}%\n \
                 \nToday's High: {round(self.max_temperature)}°F\nToday's Low: {round(self.min_temperature)}°F\
-                \nFeels Like High: {round(self.max_feels_like)}°F\nFeels Like Low: {round(self.min_feels_like)}°F\n")
+                \nFeels Like High: {round(self.max_feels_like)}°F\nFeels Like Low: {round(self.min_feels_like)}°F\
+                \nUV Index: {round(self.uv_index_max)}\n")
         
         # only add precipitation information if it exists
         if self.rain > 0:
@@ -128,7 +132,8 @@ class Forecast():
             "daily": ["temperature_2m_max",
                       "temperature_2m_min",
                       "apparent_temperature_max",
-                      "apparent_temperature_min"
+                      "apparent_temperature_min",
+                      "uv_index_max"
                     ], 
             "timezone": "auto",  # automatically detect timezone based on coordinates
             "forecast_days": 1,  # only retrieve forecast for today
@@ -164,6 +169,8 @@ class Forecast():
         self.min_temperature = daily.Variables(1).ValuesAsNumpy()[0]
         self.max_feels_like = daily.Variables(2).ValuesAsNumpy()[0]
         self.min_feels_like = daily.Variables(3).ValuesAsNumpy()[0]
+        self.uv_index_max = daily.Variables(4).ValuesAsNumpy()[0]
+
     
     def get_weather_summary(self):
         """Generates a summary of the current weather conditions.
