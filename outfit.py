@@ -97,7 +97,56 @@ class Outfits():
         Returns:
             user_preferences (dict): a dictionary of user preferences for clothing.
         """
-        pass
+        outfit = self.outfit_options().replace("Recommend outfit: ","").split(" , ")
+         
+         #type of outfit based on the occasion 
+        if 'clothing style' in user_preferences:
+            style = user_preferences['clothing style']
+            if style == 'casual':
+                if 'button down shirt' in outfit:
+                    outfit.remove('button down shirt')
+                if 'T-shirt' not in outfit:
+                    outfit.append('T-shirt')
+            elif style == 'formal':
+                if 'T-shirt' in outfit: 
+                    outfit.remove('T-shirt')
+                if 'button down shirt' not in outfit:
+                    outfit.append('button down shirt')
+            elif style == 'active':
+                if 'jeans' in outfit:
+                    outfit.remove('jeans')
+                if 'shorts' not in  outfit:
+                    outfit.append('shorts')
+                    
+        #type of fabric based on the weather             
+        if 'fabric' in user_preferences:
+            fabric = user_preferences['fabric']
+            if fabric == 'breathable' and 'heavy sweater' in outfit:
+                outfit.remove('heavy sweater')
+                if 'light sweater' not in outfit:
+                    outfit.append('light sweater')
+            elif fabric == 'warm' and 'light sweater' in outfit:
+                outfit.remove('light sweater')
+                if 'wool sweater' not in outfit:
+                    outfit.append('wool sweater')
+            elif fabric == 'waterproof' and 'raincoat' not in outfit:
+                outfit.append('waterproof raincoat')
+                           
+        # type of clothing based on activity         
+        if 'activity_type' in user_preferences:
+            activity = user_preferences['activity_type']
+            if activity == 'gym':
+                if 'jeans' in outfit:
+                    outfit.remove('jeans')
+                if 'shorts' not in outfit:
+                    outfit.append('shorts')
+            elif activity == 'formal':
+                if 'T-shirt' in outfit:
+                    outfit.remove('T-shirt')
+                if 'button down shirt' not in outfit:
+                    outfit.append('button down shirt')
+                    
+        return f"Customized outfit {', '.join(outfit)}"
         
     def layering_recommendations(self):
         """Provides layering recommendations based on temperature fluctuations.
