@@ -106,7 +106,31 @@ class Outfits():
         Returns:
             str: a string listing recommended accessories.
         """
-        pass
+        accessories = []
+        
+        temp = self.forecast.temperature
+        cloud_coverage = self.forecast.cloud_coverage
+        
+        #checking primarily for extreme weather that needs a special accessory
+        if cloud_coverage == 0:
+            accessories.append('sun hat')
+        elif cloud_coverage < 0.5:
+            accessories.append('sunglasses')
+        
+        if temp < 40:
+            accessories.append('gloves')
+            accessories.append('scarf')
+            accessories.append('knit hat')
+        if temp > 70 and cloud_coverage != 0:
+            accessories.append('baseball cap')
+            
+        if not accessories:
+           return f"The weather is agreeable today. Your accessories are up to you!"
+        
+        return f"Recommended accessories: {', '.join(accessories)}"
+            
+        
+    
  
 if __name__ == "__main__":
     weather = w.Forecast()
