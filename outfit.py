@@ -154,8 +154,31 @@ class Outfits():
         Returns:
             str: layering advice based on the difference between daily max and min temperatures.
         """
+        difference = self.high_temp - self.low_temp
         
-        pass               
+        #check if layering is irrelevant (too warm)
+        if self.low_temp >= 70:
+            return """Weather is considerably warm all day. Wear something
+                    loose and light on top if you want to cover up."""
+                    
+        #checking all differences, where temp drops below 70 degrees            
+        if difference <= 5:
+            return """Weather will remain constant throughout the 
+                        day (within 5\xb0F). Layering Optional."""
+        elif difference <= 15:
+            return """It could get cooler as the sun goes down. Bring a light
+                        jacket in addition to your outfit."""
+        elif difference <= 25:
+            return """The temperature drops significantly, make sure to bring
+                        a substantial jacket or a hoodie if you plan on staying
+                        out late."""
+        else:
+            return f"""Drastic variety in temperature today (over 25\xb0F).
+                    Be prepared to layer, making sure you have on a lighter
+                    outfit for the high temperature of {self.high_temp}\xb0F 
+                    and warmer outerwear for the low temperature of 
+                    {self.low_temp}\xb0F."""
+                                  
     def recommended_accessories(self):
         """Suggests accessories based on weather conditions.
         
