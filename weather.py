@@ -181,12 +181,64 @@ class Forecast():
         pass
     
     def get_comfort_index(self):
-        """Calculates a comfort index based on temperature, humidity, and wind speed.
+        """Calculates a comfort index based on temperature, humidity, and wind speed. Comfort scale goes from 1-10
         
         Returns:
             float: a comfort index value that indicates how comfortable the weather is.
         """
-        pass
+        comfort = 0
+        
+        if self.temperature < 20:
+            comfort += 0
+        elif self.temperature < 35:
+            comfort += 1
+        elif self.temperature < 50:
+            comfort += 2
+        elif self.temperature < 60:
+            comfort += 3
+        elif self.temperature < 75:
+            comfort += 4
+        elif self.temperature < 90:
+            comfort += 2
+        elif self.temperature > 90:
+            comfort += 1
+        
+            
+        if self.precipitation_chance == 0:
+            comfort += 2
+        elif self.precipitation_chance < 0.25:
+            comfort += 0.5
+        elif self.precipitation_chance < 0.5:
+            comfort += 0
+        elif self.precipitation_chance < 0.75:
+            comfort -= 1
+        elif self.rain <= 1:
+            comfort -= 2
+        
+        if self.wind_speed < 5:
+            comfort += 2
+        elif self.wind_speed < 10:
+            comfort += 1
+        elif self.wind_speed < 15:
+            comfort += 0
+        elif self.wind_speed < 20:
+            comfort -= 1
+        elif self.wind_speed > 20:
+            comfort -= 2
+            
+        if self.humidity < 25:
+            comfort += 3
+        elif self.humidity < 50:
+            comfort += 1
+        elif self.humidity < 75:
+            comfort -= 1
+        elif self.humidity <= 100:
+            comfort -= 2
+        
+        return f"The comfort index today: {comfort}"
+        
+        
+            
     
     def compare_with_yesterday(self, yesterday_forecast):
         """Compares today's forecast with yesterday's forecast.
@@ -253,5 +305,6 @@ if __name__ == "__main__":
     
     location = get_location("College Park", "Maryland") # example location, can be replaced with user input
     weather.get_forecast(location[0], location[1]) # fetch the current weather forecast for the location
-    
+    comfort_index = weather.get_comfort_index()    
     print(weather)
+    print(comfort_index)

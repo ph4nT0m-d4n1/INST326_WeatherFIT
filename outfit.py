@@ -58,7 +58,7 @@ class Outfits():
         if self.temp < 32:
             outfit += ['puffer jacket', 'sweater', 'thermals', 'thick pants']
         elif self.temp < 40:
-            outfit += ['heavy sweater', 'sweatpants', ]
+            outfit += ['heavy sweater', 'sweatpants']
         elif self.temp < 60:
             outfit += ['light sweater', 'jeans']
         elif self.temp < 75:
@@ -69,7 +69,7 @@ class Outfits():
         # wind-based recommendations
         if self.wind > 20:
             outfit.append('windbreaker coat')
-             
+    
         # humidity recommendations for hot, humid days
         if self.humidity >= 80 and self.temp > 70:
             outfit.append('lightweight/breathable clothing')
@@ -163,21 +163,13 @@ class Outfits():
                     
         #checking all differences, where temp drops below 70 degrees            
         if difference <= 5:
-            return """Weather will remain constant throughout the 
-                        day (within 5\xb0F). Layering Optional."""
+            return """Weather will remain constant throughout the day (within 5\xb0F). Layering Optional."""
         elif difference <= 15:
-            return """It could get cooler as the sun goes down. Bring a light
-                        jacket in addition to your outfit."""
+            return """It could get cooler as the sun goes down. Bring a light jacket in addition to your outfit."""
         elif difference <= 25:
-            return """The temperature drops significantly, make sure to bring
-                        a substantial jacket or a hoodie if you plan on staying
-                        out late."""
+            return """The temperature drops significantly, make sure to bring a substantial jacket or a hoodie if you plan on staying out late."""
         else:
-            return f"""Drastic variety in temperature today (over 25\xb0F).
-                    Be prepared to layer, making sure you have on a lighter
-                    outfit for the high temperature of {self.high_temp}\xb0F 
-                    and warmer outerwear for the low temperature of 
-                    {self.low_temp}\xb0F."""
+            return f"""Drastic variety in temperature today (over 25\xb0F). Be prepared to layer, making sure you have on a lighter outfit for the high temperature of {self.high_temp}\xb0F and warmer outerwear for the low temperature of {self.low_temp}\xb0F."""
                                   
     def recommended_accessories(self):
         """Suggests accessories based on weather conditions.
@@ -188,26 +180,24 @@ class Outfits():
         accessories = []
         
         #checking primarily for extreme weather that needs a special accessory
-        if self.cloud_coverage == 0:
+        if self.cloud_coverage < 25 and self.uv_index_max > 6:
             accessories.append('sun hat')
-        elif self.cloud_coverage < 0.5:
+        elif self.cloud_coverage < 65 and self.uv_index_max > 4 :
             accessories.append('sunglasses')
-        
+            
         if self.temp < 35:
             accessories.append('gloves')
             accessories.append('scarf')
             accessories.append('beanie')
-        if self.temp >= 70 and self.cloud_coverage != 0:
-            accessories.append('baseball cap')
-                    
-        if self.uv_index_max > 2 and self.uv_index_max < 6 and self.cloud_coverage < 0.5:
-            accessories.append('30+ SPF sunscreen')
-        elif self.uv_index_max <= 10 and self.cloud_coverage < 0.25:
-            accessories.append('50+ SPF suncreen')
-            
-        if not accessories:
-           return f"The weather is agreeable today. Your accessories are up to you!"
         
+        if self.uv_index_max > 2 and self.uv_index_max <= 8 and self.cloud_coverage < 50:
+            accessories.append('30+ SPF sunscreen')
+        elif self.uv_index_max <= 10 and self.cloud_coverage < 25:
+            accessories.append('50+ SPF suncreen')
+        
+        if not accessories:
+            return("The weather calls for no extras!")
+
         return f"Recommended accessories: {', '.join(accessories)}"
             
         
@@ -224,3 +214,5 @@ if __name__ == "__main__":
     print(outfit_suggestion)
     accessories_suggestion = outfit_recommender.recommended_accessories()
     print(accessories_suggestion)
+    layering_suggesstion = outfit_recommender.layering_recommendations()
+    print(layering_suggesstion)
