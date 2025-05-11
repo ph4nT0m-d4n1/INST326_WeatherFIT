@@ -25,4 +25,5 @@ pip install requests-cache retry-requests numpy pandas
 - [x] add function for daily / hourly weather
 - [ ] expand outfit class
 - [ ] expand weather class
-- [ ] add unit tests
+- [ ] add unit tests for weather module
+- [ ] add unit tests for outfit module

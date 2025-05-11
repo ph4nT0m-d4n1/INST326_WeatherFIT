@@ -1,4 +1,17 @@
-# pip install pytest
+"""Tests for WeatherFIT's weather module
+Group Members:
+    Danny Mallya
+    Bella Konrad
+    Jaden Shin
+    Marvin Gomez Molina
+
+Instructor: Professor Cruz
+Assignment: Final Project
+Date: 05/10/2025
+
+This module contains unit tests for the weather.py module.
+"""
+
 import weather as w
 
 def test_forecast():

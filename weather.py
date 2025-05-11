@@ -19,15 +19,14 @@ The app will then suggest clothing that would be appropriate for the weather con
 # import libraries for API requests and caching
 import openmeteo_requests  # library for accessing the Open-Meteo weather API
 import requests_cache      # library for caching API requests to avoid rate limiting
-import requests      
-
-# import libraries for command line argument parsing and system interactions
-import argparse
-import sys
+import requests            # library for making HTTP requests
 
 # import libraries for retry functionality and date handling
 from retry_requests import retry  # handles retrying failed requests automatically
 from datetime import datetime
+
+_bold = "\033[1m" # ANSI escape code for bold text
+bold_ = "\033[0;0m" # ANSI escape code to reset text formatting
 
 class Forecast():
     """This class is used to get the weather forecast for a given location and date.
@@ -116,7 +115,7 @@ class Forecast():
         # the order of variables in the "current" list is important as they map to Variables(index)
         url = "https://api.open-meteo.com/v1/forecast"
         params = {
-            "latitude": latitude,
+            "latitude": latitude, # use the latitude and longitude from the get_location function
             "longitude": longitude,
             "models": "best_match",  # using the best available weather model
             "current": ["temperature_2m",
@@ -136,16 +135,17 @@ class Forecast():
                       "uv_index_max"
                     ], 
             "timezone": "auto",  # automatically detect timezone based on coordinates
-            "forecast_days": 1,  # only retrieve forecast for today
-            "wind_speed_unit": "mph",
-            "temperature_unit": "fahrenheit",
-            "precipitation_unit": "inch"
+            "past_days": 1, # retrieve data for the past day for comparison
+            "forecast_days": 1,  # retrieve forecast for today
+            "wind_speed_unit": "mph", # adjust wind speed unit to miles per hour
+            "temperature_unit": "fahrenheit", # adjust temperature unit to fahrenheit
+            "precipitation_unit": "inch" # adjust precipitation unit to inches
         }
         
         responses = openmeteo.weather_api(url, params=params) # make the API request
         response = responses[0] # process the first response (only one location was requested)
 
-        print(f"Timezone: {response.Timezone()}{response.TimezoneAbbreviation()}\n") # print the timezone information
+        # print(f"Timezone: {response.Timezone()}{response.TimezoneAbbreviation()}\n") # print the timezone information
         
         current = response.Current() # extract current weather data
         daily = response.Daily() # extract daily weather data
@@ -163,22 +163,56 @@ class Forecast():
         self.rain = current.Variables(6).Value()
         self.showers = current.Variables(7).Value() 
         self.snowfall = current.Variables(8).Value()
+        
         # the index corresponds to the order in the "daily" list in params
         # using [0] to get the first value since daily returns a numpy array
-        self.max_temperature = daily.Variables(0).ValuesAsNumpy()[0]
-        self.min_temperature = daily.Variables(1).ValuesAsNumpy()[0]
-        self.max_feels_like = daily.Variables(2).ValuesAsNumpy()[0]
-        self.min_feels_like = daily.Variables(3).ValuesAsNumpy()[0]
-        self.uv_index_max = daily.Variables(4).ValuesAsNumpy()[0]
-
+        self.max_temperature = daily.Variables(0).ValuesAsNumpy()[1]
+        self.min_temperature = daily.Variables(1).ValuesAsNumpy()[1]
+        self.max_feels_like = daily.Variables(2).ValuesAsNumpy()[1]
+        self.min_feels_like = daily.Variables(3).ValuesAsNumpy()[1]
+        self.uv_index_max = daily.Variables(4).ValuesAsNumpy()[1]
+        
+        # match the daily data with variables for yesterday's data
+        yesterday_max_temperature = round(daily.Variables(0).ValuesAsNumpy()[0])
+        yesterday_min_temperature = round(daily.Variables(1).ValuesAsNumpy()[0])
+        yesterday_max_feels_like = round(daily.Variables(2).ValuesAsNumpy()[0])
+        yesterday_min_feels_like = round(daily.Variables(3).ValuesAsNumpy()[0])
+        yesterday_uv_index_max = round(daily.Variables(4).ValuesAsNumpy()[0])
+        
+        return (yesterday_max_temperature, yesterday_min_temperature, yesterday_max_feels_like, yesterday_min_feels_like, yesterday_uv_index_max)
     
-    def get_weather_summary(self):
+    def get_weather_summary(self, forecast):
         """Generates a summary of the current weather conditions.
         
         Returns:
             str: a simple readable summary of the current weather conditions.
         """
-        pass
+        summary = ""
+
+        # temperature summary
+        summary += f"{_bold}Current temperature{bold_} is {round(self.temperature)}°F\n"
+        
+        if self.feels_like > self.temperature:
+            summary += f"It feels about {round(self.feels_like - self.temperature)}° warmer\n"
+        elif self.feels_like < self.temperature:
+            summary += f"It feels about {round(self.temperature - self.feels_like)}° cooler\n"
+        else:
+            summary += f"It feels about the same as the temperature\n"
+            
+        # max and min temperature summary
+        summary += f"Today's temperature range is from {round(self.min_temperature)}° to {round(self.max_temperature)}°\n"
+        summary += f"It feels like {round(self.min_feels_like)}° to {round(self.max_feels_like)}°\n"
+        
+        # conditions summary
+        if self.cloud_coverage < 30:
+            summary += f"It is currently mostly sunny\n"
+        elif self.cloud_coverage < 60:
+            summary += f"It is currently partly cloudy\n"
+        elif self.cloud_coverage < 90:
+            summary += f"It is currently mostly cloudy\n"
+        
+        return summary
+        
     
     def get_comfort_index(self):
         """Calculates a comfort index based on temperature, humidity, and wind speed. Comfort scale goes from 1-10
@@ -186,60 +220,53 @@ class Forecast():
         Returns:
             float: a comfort index value that indicates how comfortable the weather is.
         """
-        comfort = 0
+        comfort = 10
+        reasons = []
         
-        if self.temperature < 20:
-            comfort += 0
-        elif self.temperature < 35:
-            comfort += 1
-        elif self.temperature < 50:
-            comfort += 2
-        elif self.temperature < 60:
-            comfort += 3
-        elif self.temperature < 75:
-            comfort += 4
-        elif self.temperature < 90:
-            comfort += 2
-        elif self.temperature > 90:
-            comfort += 1
-        
-            
-        if self.precipitation_chance == 0:
-            comfort += 2
-        elif self.precipitation_chance < 0.25:
-            comfort += 0.5
-        elif self.precipitation_chance < 0.5:
-            comfort += 0
-        elif self.precipitation_chance < 0.75:
-            comfort -= 1
-        elif self.rain <= 1:
+        # temperature deductions
+        if self.temperature > 95 or self.feels_like > 95 or self.temperature < 20 or self.feels_like < 20:
+            comfort -= 3
+            reasons.append("extreme temperatures")
+        elif self.temperature > 85 or self.feels_like > 85 or self.temperature < 32 or self.feels_like < 32:
             comfort -= 2
-        
-        if self.wind_speed < 5:
-            comfort += 2
-        elif self.wind_speed < 10:
-            comfort += 1
-        elif self.wind_speed < 15:
-            comfort += 0
-        elif self.wind_speed < 20:
-            comfort -= 1
-        elif self.wind_speed > 20:
-            comfort -= 2
+            reasons.append("uncomfortable temperatures")
             
-        if self.humidity < 25:
-            comfort += 3
-        elif self.humidity < 50:
-            comfort += 1
-        elif self.humidity < 75:
-            comfort -= 1
-        elif self.humidity <= 100:
+        # precipitation deductions
+        if self.precipitation_chance > 80:
             comfort -= 2
+            reasons.append("high chance of precipitation")
+        elif self.precipitation_chance > 40:
+            comfort -= 1
+            reasons.append("possible chance of precipitation")
         
-        return f"The comfort index today: {comfort}"
+        # wind speed deductions
+        if self.wind_speed > 20:
+            comfort -= 2
+            reasons.append("strong winds")
+        elif self.wind_speed > 15:
+            comfort -= 1
+            reasons.append("moderate wind speeds")
+        
+        # humidity deductions    
+        if self.humidity < 20:
+            comfort -= 1
+            reasons.append("dry air")
+        elif self.humidity > 80:
+            comfort -= 2
+            reasons.append("high humidity")
+        
+        if comfort >= 8:
+            description = "very comfortable"
+        elif comfort >= 6:
+            description = "comfortable"
+        elif comfort >= 4:
+            description = f"uncomfortable due to {', '.join(reasons)}"
+        elif comfort >= 2:
+            description = f"very uncomfortable due to {', '.join(reasons)}"
+        
+        return (f"\033[1m Daily Summary \033[0;0m \nToday's weather is {description} with a comfort index of {comfort} \n")
         
         
-            
-    
     def compare_with_yesterday(self, yesterday_forecast):
         """Compares today's forecast with yesterday's forecast.
         
@@ -249,11 +276,48 @@ class Forecast():
         Returns:
             str: a comparison of today's weather with yesterday's weather.
         """
-        pass
+        past_weather_info = (f"Yesterday's High: {yesterday_forecast[0]}°F\n\
+                Yesterday's Low: {yesterday_forecast[1]}°F\n\
+                Yesterday's Feels Like High: {yesterday_forecast[2]}°F\n\
+                Yesterday's Feels Like Low: {yesterday_forecast[3]}°F\n\
+                Yesterday's UV Index: {yesterday_forecast[4]}\n")
+        
+        comparisons = ""
+        
+        # temperature comparison
+        temp_diff = self.max_temperature - yesterday_forecast[0]
+        if abs(temp_diff) >= 5:
+            if temp_diff > 0:
+                comparisons += f"The high temperature today is {abs(round(temp_diff))}° warmer than yesterday's\n"
+            else:
+                comparisons += f"The high temperature today is {abs(round(temp_diff))}° cooler than yesterday's\n"
+        else:
+            comparisons += f"Today's maximum temperatures are similar to yesterday's\n"
+        
+        # feels like comparison
+        feels_like_diff = self.max_feels_like - yesterday_forecast[2]
+        if abs(feels_like_diff) >= 5:
+            if feels_like_diff > 0:
+                comparisons += f"The high feels like temperature today is {abs(round(feels_like_diff))}° warmer than yesterday's\n"
+            else:
+                comparisons += f"The high feels like temperature today is {abs(round(feels_like_diff))}° cooler than yesterday's\n"
+        else:
+            comparisons += f"Today's maximum feels like temperatures are similar to yesterday's\n"
+        
+        # uv index comparison
+        uv_diff = self.uv_index_max - yesterday_forecast[4]
+        if abs(uv_diff) >= 1:
+            if uv_diff > 0:
+                comparisons += f"The peak UV index today is {abs(round(uv_diff))} points higher than yesterday's index of {self.uv_index_max}\n"
+            else:
+                comparisons += f"The peak UV index today is {abs(round(uv_diff))} points lower than yesterday's index of {self.uv_index_max}\n"
+        else:
+            comparisons += f"The UV index today is similar to yesterday's\n"
+        
+        return comparisons
         
 
-
-def get_location(city:str, state:str=None, max_results=10):
+def get_location(city:str, state:str=None, country:str=None, max_results=10):
     """Gets the geographic coordinates for a given city and (optionally) state.
     
     This function makes a request to the Open-Meteo geocoding API to convert
@@ -262,6 +326,7 @@ def get_location(city:str, state:str=None, max_results=10):
     Args:
         city (str): the name of the city
         state (str, optional): the name of the State. Defaults to None.
+        country (str, optional): the name of the country. Defaults to None.
         max_results (int, optional): the maximum number of results to return. Defaults to 10.
     
     Returns:
@@ -269,7 +334,7 @@ def get_location(city:str, state:str=None, max_results=10):
     """
     # replace spaces with plus signs for the URL
     city = city.replace(" ", "+")
-    
+
     geo_request = (f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count={max_results}&language=en&format=json")
     geo_location = requests.get(geo_request)
     
@@ -280,10 +345,11 @@ def get_location(city:str, state:str=None, max_results=10):
         
         # if a state was specified, try to find a match with both city and state
         for result in data['results']:
-            if state != None and result['admin1'] == state:
+            if (state != None and result['admin1'] == state) or (country != None and result['country'] == country):
                 latitude = result['latitude']
                 longitude = result['longitude']
-                print(f"Location: {result['name']}, {result['admin1']}")
+                print(f"{_bold}Location{bold_}: {result['name']} - {result['admin1']}, {result['country']}")
+                print(f"{_bold}Timezone{bold_}: {result['timezone']}\n")
                 return latitude, longitude
         
         # if no specific match or no state was specified, use the first result
@@ -291,7 +357,8 @@ def get_location(city:str, state:str=None, max_results=10):
         latitude = first_result['latitude']
         longitude = first_result['longitude']
         
-        print(f"First Location: {first_result['name']}, {first_result['admin1']}")
+        print(f"{_bold}First Location{bold_}: {first_result['name']} - {first_result['admin1']}, {first_result['country']}")
+        print(f"{_bold}Timezone{bold_}: {first_result['timezone']}\n")
         return latitude, longitude
         
     elif geo_location.status_code != 200:
@@ -302,9 +369,17 @@ def get_location(city:str, state:str=None, max_results=10):
 if __name__ == "__main__":
     # create a new Forecast object
     weather = Forecast()
+    location = get_location("San Francisco") # example location, can be replaced with user input
     
-    location = get_location("College Park", "Maryland") # example location, can be replaced with user input
     weather.get_forecast(location[0], location[1]) # fetch the current weather forecast for the location
-    comfort_index = weather.get_comfort_index()    
-    print(weather)
+    comfort_index = weather.get_comfort_index()
+    
+    comparison = weather.compare_with_yesterday(weather.get_forecast(location[0], location[1]))
+    
+    summary = weather.get_weather_summary(weather)
+    
     print(comfort_index)
+    print(summary)
+    print(comparison)
+    print(weather)
+    
