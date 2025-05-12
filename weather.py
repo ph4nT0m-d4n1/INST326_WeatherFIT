@@ -230,12 +230,18 @@ class Forecast():
         elif self.temperature > 85 or self.feels_like > 85 or self.temperature < 32 or self.feels_like < 32:
             comfort -= 2
             reasons.append("uncomfortable temperatures")
+        elif self.temperature < 50 or self.feels_like < 50:
+            comfort -= 1
+            reasons.append("quite chilly")
             
         # precipitation deductions
         if self.precipitation_chance > 80:
-            comfort -= 2
+            comfort -= 3
             reasons.append("high chance of precipitation")
-        elif self.precipitation_chance > 40:
+        elif self.precipitation_chance > 50:
+            comfort -= 2
+            reasons.append("good chance of precipitation")
+        elif self.precipitation_chance > 30:
             comfort -= 1
             reasons.append("possible chance of precipitation")
         
@@ -248,16 +254,19 @@ class Forecast():
             reasons.append("moderate wind speeds")
         
         # humidity deductions    
-        if self.humidity < 20:
+        if self.humidity < 10:
             comfort -= 1
             reasons.append("dry air")
-        elif self.humidity > 80:
+        elif self.humidity > 50:
             comfort -= 2
-            reasons.append("high humidity")
+            reasons.append("moderately high humidity")
+        elif self.humidity > 90:
+            comfort -= 3
+            reasons.append("very high humidity")
         
-        if comfort >= 8:
+        if comfort >= 9:
             description = "very comfortable"
-        elif comfort >= 6:
+        elif comfort >= 7:
             description = "comfortable"
         elif comfort >= 4:
             description = f"uncomfortable due to {', '.join(reasons)}"

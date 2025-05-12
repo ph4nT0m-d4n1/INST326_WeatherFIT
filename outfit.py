@@ -53,13 +53,13 @@ class Outfits():
 
         # temperature-based clothing recommendations
         if self.temp < 32:
-            outfit += ['puffer jacket', 'sweater', 'thermals', 'thick pants']
-        elif self.temp < 40:
-            outfit += ['heavy sweater', 'sweatpants']
+            outfit += ['puffer jacket', 'sweater', 'thermals', 'thick pants', 'boots']
+        elif self.temp < 50:
+            outfit += ['hoodie', 'sweatpants', 'high top sneakers']
         elif self.temp < 60:
-            outfit += ['light sweater', 'jeans']
+            outfit += ['light sweater', 'jeans', 'sneakers']
         elif self.temp < 75:
-            outfit += ['T-shirt', 'shorts']
+            outfit += ['T-shirt', 'shorts', 'breatheable sneakers']
         else:
             outfit += ['T-shirt', 'shorts', 'sandals']
              
@@ -190,8 +190,9 @@ class Outfits():
             
         if self.temp < 35:
             accessories.append('gloves')
-            accessories.append('scarf')
-            accessories.append('beanie')
+            if self.temp < 30:
+                accessories.append('scarf')
+                accessories.append('beanie')
         
         if self.uv_index_max > 2 and self.uv_index_max <= 8 and self.cloud_coverage < 25:
             accessories.append('30+ SPF sunscreen')
