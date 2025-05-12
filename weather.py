@@ -90,11 +90,11 @@ class Forecast():
         
         # only add precipitation information if it exists
         if self.rain > 0:
-            weather_info += f"Rain: {self.rain} inches\n"
+            weather_info += f"Rain: {self.rain:.1f} inches\n"
         if self.showers > 0:
-            weather_info += f"Showers: {self.showers} inches\n"
+            weather_info += f"Showers: {self.showers:.1f} inches\n"
         if self.snowfall > 0:
-            weather_info += f"Snowfall: {self.snowfall} inches\n"
+            weather_info += f"Snowfall: {self.snowfall:.1f} inches\n"
         return weather_info
 
     def get_forecast(self, latitude, longitude):
@@ -227,7 +227,7 @@ class Forecast():
             comfort -= 2
             
         if self.humidity < 25:
-            comfort += 3
+            comfort += 2
         elif self.humidity < 50:
             comfort += 1
         elif self.humidity < 75:
@@ -302,7 +302,6 @@ def get_location(city:str, state:str=None, max_results=10):
 if __name__ == "__main__":
     # create a new Forecast object
     weather = Forecast()
-    
     location = get_location("College Park", "Maryland") # example location, can be replaced with user input
     weather.get_forecast(location[0], location[1]) # fetch the current weather forecast for the location
     comfort_index = weather.get_comfort_index()    

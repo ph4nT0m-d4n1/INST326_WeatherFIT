@@ -56,15 +56,15 @@ class Outfits():
          
         # temperature-based clothing recommendations
         if self.temp < 32:
-            outfit += ['puffer jacket', 'sweater', 'thermals', 'thick pants']
+            outfit += ['puffer jacket', 'sweater', 'thermals', 'thick pants', 'boots']
         elif self.temp < 40:
-            outfit += ['heavy sweater', 'sweatpants']
-        elif self.temp < 60:
-            outfit += ['light sweater', 'jeans']
-        elif self.temp < 75:
-            outfit += ['T-shirt', 'shorts']
+            outfit += ['heavy sweater', 'sweatpants', 'high top sneakers']
+        elif self.temp < 65:
+            outfit += ['light sweater', 'jeans', 'sneakers']
+        elif self.temp < 80:
+            outfit += ['T-shirt', 'shorts', 'breatheable sneakers']
         else:
-            outfit += ['T-shirt', 'shorts', 'sandals']
+            outfit += ['light colored T-shirt', 'board shorts', 'sandals']
              
         # wind-based recommendations
         if self.wind > 20:
@@ -169,7 +169,7 @@ class Outfits():
         elif difference <= 25:
             return """The temperature drops significantly, make sure to bring a substantial jacket or a hoodie if you plan on staying out late."""
         else:
-            return f"""Drastic variety in temperature today (over 25\xb0F). Be prepared to layer, making sure you have on a lighter outfit for the high temperature of {self.high_temp}\xb0F and warmer outerwear for the low temperature of {self.low_temp}\xb0F."""
+            return f"""Drastic variety in temperature today (over 25\xb0F). Be prepared to layer, making sure you have on a lighter outfit for the high temperature of {round(self.high_temp)}\xb0F and warmer outerwear for the low temperature of {round(self.low_temp)}\xb0F."""
                                   
     def recommended_accessories(self):
         """Suggests accessories based on weather conditions.
@@ -187,8 +187,9 @@ class Outfits():
             
         if self.temp < 35:
             accessories.append('gloves')
-            accessories.append('scarf')
-            accessories.append('beanie')
+            if self.temp < 30:
+                accessories.append('scarf')
+                accessories.append('beanie')
         
         if self.uv_index_max > 2 and self.uv_index_max <= 8 and self.cloud_coverage < 50:
             accessories.append('30+ SPF sunscreen')
