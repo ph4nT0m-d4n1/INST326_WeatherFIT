@@ -16,7 +16,7 @@ import weather as w
 
 def test_forecast():
     """Test the Forecast class and its methods."""
-    # Create a mock forecast object with sample data
+    # create a mock forecast object with sample data
     forecast = w.Forecast(
         temperature=75,
         max_temperature=80,
@@ -31,7 +31,7 @@ def test_forecast():
         uv_index_max=5
     )
     
-    # Test the attributes of the forecast object
+    # test the attributes of the forecast object
     assert forecast.temperature == 75, "Temperature should be 75"
     assert forecast.max_temperature == 80, "Max temperature should be 80"
     assert forecast.min_temperature == 70, "Min temperature should be 70"
@@ -43,4 +43,3 @@ def test_forecast():
     assert forecast.snowfall is False, "Snowfall should be False"
     assert forecast.cloud_coverage == 30, "Cloud coverage should be 30"
     assert forecast.uv_index_max == 5, "UV index max should be 5"
-

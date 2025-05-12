@@ -24,6 +24,10 @@ def parse_args(args_list):
     parser.add_argument("city", type=str, help="The name of the city to get the weather for")
     parser.add_argument("--state", type=str, help="The name of the state that the city is in")
     parser.add_argument("--country", type=str, help="The name of the countr the city is in")
+    
+    parser.add_argument("--style", type=str, help="The clothing style you prefer")
+    parser.add_argument("--fabric", type=str, help="The fabric you prefer")
+    parser.add_argument("--activity", type=str, help="The type of activity you will be doing")
     args = parser.parse_args(args_list)
     
     return args
@@ -33,11 +37,25 @@ if __name__ == "__main__":
     args = parse_args(sys.argv[1:])
     
     location = w.get_location(args.city, args.state) # get coordinates for the specified location
+    
     weather.get_forecast(location[0], location[1]) # fetch the current weather forecast for the location
+    comfort_index = weather.get_comfort_index()
+    comparison = weather.compare_with_yesterday(weather.get_forecast(location[0], location[1]))
+    summary = weather.get_weather_summary(weather)
     
     print(weather)
+    print(comfort_index)
+    print(summary)
+    print(comparison)
+    
     
     outfit = fit.Outfits(weather) # create an Outfits object with the weather forecast
-    outfit = outfit.outfit_options() # get the recommended outfit based on the weather
     
-    print(outfit)
+    customized_outfit = outfit.customize_outfit({
+        'clothing style': args.style,
+        'fabric': args.fabric,
+        'activity_type': args.activity
+    })
+    
+    print(customized_outfit) # print the customized outfit suggestion
+    

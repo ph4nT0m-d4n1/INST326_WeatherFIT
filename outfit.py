@@ -14,6 +14,9 @@ The app will then suggest clothing that would be appropriate for the weather con
 """
  
 import weather as w
+
+_bold = "\033[1m" # ANSI escape code for bold text
+bold_ = "\033[0;0m" # ANSI escape code to reset text formatting
  
 class Outfits():
     """This class will display outfits that reflect the forecast and user preferences.
@@ -47,7 +50,7 @@ class Outfits():
         to recommend appropriate clothing items.
          
         Returns:
-            str: A string listing recommended clothing items.
+            list: a list of recommended clothing items
         """
         outfit = []  # list to store clothing recommendations
 
@@ -83,7 +86,8 @@ class Outfits():
         if self.snowfall > 0:
             outfit.append('snow boots')
                       
-        return f"Recommended outfit: {', '.join(outfit)}\n"
+        print (f"{_bold}Recommended Outfit{bold_}: {', '.join(outfit)}\n")
+        return (outfit)
     
     def customize_outfit(self, user_preferences):
         """Customizes the outfit based on user preferences.
@@ -92,9 +96,9 @@ class Outfits():
             activity_type (str, optional): the type of activity (e.g., casual, formal, sports).
         
         Returns:
-            user_preferences (dict): a dictionary of user preferences for clothing.
+            str: a description of the customized outfit
         """
-        outfit = self.outfit_options().replace("Recommend outfit: ","").split(" , ")
+        outfit = self.outfit_options()
          
          #type of outfit based on the occasion 
         if 'clothing style' in user_preferences:
@@ -143,7 +147,7 @@ class Outfits():
                 if 'button down shirt' not in outfit:
                     outfit.append('button down shirt')
                     
-        return f"Customized outfit {', '.join(outfit)}\n"
+        return f"{_bold}Customized Outfit{bold_}: {', '.join(outfit)}\n"
         
     def layering_recommendations(self):
         """Provides layering recommendations based on temperature fluctuations.
@@ -202,19 +206,27 @@ class Outfits():
         if not accessories:
             return("The weather calls for no extras!")
 
-        return f"Recommended accessories: {', '.join(accessories)}\n"
+        return f"{_bold}Recommended accessories{bold_}: {', '.join(accessories)}\n"
     
  
 if __name__ == "__main__":
     weather = w.Forecast()
-    location = w.get_location("College Park", "Maryland")  # example location
+    location = w.get_location("San Francisco", "California", "United States")  # example location
     weather.get_forecast(location[0], location[1])
     print(weather)
 
     outfit_recommender = Outfits(weather)
-    outfit_suggestion = outfit_recommender.outfit_options()
-    print(outfit_suggestion)
+    
+    customized_outfit = outfit_recommender.customize_outfit({
+        'clothing style': 'formal',
+        'fabric': 'breathable',
+        'activity_type': 'gym'
+    })
+    print(customized_outfit)
+    
     accessories_suggestion = outfit_recommender.recommended_accessories()
     print(accessories_suggestion)
+    
     layering_suggesstion = outfit_recommender.layering_recommendations()
     print(layering_suggesstion)
+    

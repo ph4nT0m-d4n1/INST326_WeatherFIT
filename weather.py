@@ -190,26 +190,26 @@ class Forecast():
         summary = ""
 
         # temperature summary
-        summary += f"{_bold}Current temperature{bold_} is {round(self.temperature)}°F\n"
+        summary += f"Current temperature is {_bold}{round(self.temperature)}°F{bold_}\n"
         
         if self.feels_like > self.temperature:
-            summary += f"It feels about {round(self.feels_like - self.temperature)}° warmer\n"
+            summary += f"It feels about {_bold}{round(self.feels_like - self.temperature)}° warmer{bold_}\n"
         elif self.feels_like < self.temperature:
-            summary += f"It feels about {round(self.temperature - self.feels_like)}° cooler\n"
+            summary += f"It feels about {_bold}{round(self.temperature - self.feels_like)}° cooler{bold_}\n"
         else:
-            summary += f"It feels about the same as the temperature\n"
+            summary += f"It feels about the {_bold}same as the temperature{bold_}\n"
             
         # max and min temperature summary
-        summary += f"Today's temperature range is from {round(self.min_temperature)}° to {round(self.max_temperature)}°\n"
-        summary += f"It feels like {round(self.min_feels_like)}° to {round(self.max_feels_like)}°\n"
+        summary += f"Today's temperature range is from {_bold}{round(self.min_temperature)}° to {round(self.max_temperature)}°{bold_}\n"
+        summary += f"It feels like {_bold}{round(self.min_feels_like)}° to {round(self.max_feels_like)}°{bold_}\n"
         
         # conditions summary
         if self.cloud_coverage < 30:
-            summary += f"It is currently mostly sunny\n"
+            summary += f"It is currently {_bold}mostly sunny{bold_}\n"
         elif self.cloud_coverage < 60:
-            summary += f"It is currently partly cloudy\n"
+            summary += f"It is currently {_bold}partly cloudy{bold_}\n"
         elif self.cloud_coverage < 90:
-            summary += f"It is currently mostly cloudy\n"
+            summary += f"It is currently {_bold}mostly cloudy{bold_}\n"
         
         return summary
         
@@ -218,7 +218,7 @@ class Forecast():
         """Calculates a comfort index based on temperature, humidity, and wind speed. Comfort scale goes from 1-10
         
         Returns:
-            float: a comfort index value that indicates how comfortable the weather is.
+            str: description with the comfort index value that indicates how comfortable the weather is.
         """
         comfort = 10
         reasons = []
@@ -273,7 +273,7 @@ class Forecast():
         elif comfort >= 2:
             description = f"very uncomfortable due to {', '.join(reasons)}"
         
-        return (f"\033[1m Daily Summary \033[0;0m \nToday's weather is {description} with a comfort index of {comfort} \n")
+        return (f"{_bold}Daily Summary{bold_}\nToday's weather is {description} with a comfort index of {comfort} \n")
         
         
     def compare_with_yesterday(self, yesterday_forecast):
@@ -297,31 +297,31 @@ class Forecast():
         temp_diff = self.max_temperature - yesterday_forecast[0]
         if abs(temp_diff) >= 5:
             if temp_diff > 0:
-                comparisons += f"The high temperature today is {abs(round(temp_diff))}° warmer than yesterday's\n"
+                comparisons += f"The high temperature today is {_bold}{abs(round(temp_diff))}° warmer{bold_} than yesterday's temperature of {yesterday_forecast[0]}\n"
             else:
-                comparisons += f"The high temperature today is {abs(round(temp_diff))}° cooler than yesterday's\n"
+                comparisons += f"The high temperature today is {_bold}{abs(round(temp_diff))}° cooler{bold_} than yesterday's temperature of {yesterday_forecast[0]}\n"
         else:
-            comparisons += f"Today's maximum temperatures are similar to yesterday's\n"
+            comparisons += f"Today's maximum temperatures are {_bold}similar{bold_} to yesterday's\n"
         
         # feels like comparison
         feels_like_diff = self.max_feels_like - yesterday_forecast[2]
         if abs(feels_like_diff) >= 5:
             if feels_like_diff > 0:
-                comparisons += f"The high feels like temperature today is {abs(round(feels_like_diff))}° warmer than yesterday's\n"
+                comparisons += f"The high feels like temperature today is {_bold}{abs(round(feels_like_diff))}° warmer{bold_} than yesterday's temperature of {yesterday_forecast[2]}\n"
             else:
-                comparisons += f"The high feels like temperature today is {abs(round(feels_like_diff))}° cooler than yesterday's\n"
+                comparisons += f"The high feels like temperature today is {_bold}{abs(round(feels_like_diff))}° cooler{bold_}  than yesterday's temperature of {yesterday_forecast[2]}\n"
         else:
-            comparisons += f"Today's maximum feels like temperatures are similar to yesterday's\n"
+            comparisons += f"Today's maximum feels like temperatures are {_bold}similar{bold_} to yesterday's\n"
         
         # uv index comparison
         uv_diff = self.uv_index_max - yesterday_forecast[4]
         if abs(uv_diff) >= 1:
             if uv_diff > 0:
-                comparisons += f"The peak UV index today is {abs(round(uv_diff))} points higher than yesterday's index of {self.uv_index_max}\n"
+                comparisons += f"The peak UV index today is {_bold}{abs(round(uv_diff))} points higher{bold_} than yesterday's index of {round(yesterday_forecast[4])}\n"
             else:
-                comparisons += f"The peak UV index today is {abs(round(uv_diff))} points lower than yesterday's index of {self.uv_index_max}\n"
+                comparisons += f"The peak UV index today is {_bold}{abs(round(uv_diff))} points lower{bold_}  than yesterday's index of {round(yesterday_forecast[4])}\n"
         else:
-            comparisons += f"The UV index today is similar to yesterday's\n"
+            comparisons += f"The UV index today is {_bold}similar{bold_} to yesterday's\n"
         
         return comparisons
         
@@ -330,7 +330,7 @@ def get_location(city:str, state:str=None, country:str=None, max_results=10):
     """Gets the geographic coordinates for a given city and (optionally) state.
     
     This function makes a request to the Open-Meteo geocoding API to convert
-    a city name (and optionally a state name) into latitude and longitude coordinates.
+    a city name (and optionally a state and/or country name) into latitude and longitude coordinates.
     
     Args:
         city (str): the name of the city
@@ -361,7 +361,7 @@ def get_location(city:str, state:str=None, country:str=None, max_results=10):
                 print(f"{_bold}Timezone{bold_}: {result['timezone']}\n")
                 return latitude, longitude
         
-        # if no specific match or no state was specified, use the first result
+        # if no specific match or no state/country was specified, use the first result
         first_result = data['results'][0]
         latitude = first_result['latitude']
         longitude = first_result['longitude']
@@ -378,7 +378,7 @@ def get_location(city:str, state:str=None, country:str=None, max_results=10):
 if __name__ == "__main__":
     # create a new Forecast object
     weather = Forecast()
-    location = get_location("San Francisco") # example location, can be replaced with user input
+    location = get_location("Tokyo") # example location, can be replaced with user input
     
     weather.get_forecast(location[0], location[1]) # fetch the current weather forecast for the location
     comfort_index = weather.get_comfort_index()
@@ -387,8 +387,9 @@ if __name__ == "__main__":
     
     summary = weather.get_weather_summary(weather)
     
+    print(weather)
     print(comfort_index)
     print(summary)
     print(comparison)
-    print(weather)
+    
     
