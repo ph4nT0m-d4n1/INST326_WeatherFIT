@@ -1,5 +1,8 @@
+#import libraries for weather forecast and outfit recommendations
 import outfit as fit
 import weather as w
+
+# import libraries for command line argument parsing and system interactions
 import argparse
 import sys
 
@@ -20,6 +23,7 @@ def parse_args(args_list):
     
     parser.add_argument("city", type=str, help="The name of the city to get the weather for")
     parser.add_argument("--state", type=str, help="The name of the state that the city is in")
+    parser.add_argument("--country", type=str, help="The name of the countr the city is in")
     args = parser.parse_args(args_list)
     
     return args
