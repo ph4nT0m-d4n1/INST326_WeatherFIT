@@ -60,6 +60,20 @@ class Forecast():
                 snowfall=None,
                 uv_index_max=None
             ):
+        """This function initializes all the data that will be displayed on the weather app
+            Attributes:
+                date (str): the date and time for the forecast in format YYYY-MM-DD, HH:MM
+                temperature (float): the temperature in fahrenheit for the day
+                feels_like (float): what the temperature feels like due to humidity, wind, etc.
+                humidity (float): the humidity percentage for the day
+                precipitation_chance (float): chance of precipitation for the day as a percentage
+                cloud_coverage (float): percentage of cloud coverage for the day
+                wind_speed (float): the wind speed in miles per hour for the day
+                rain (float): amount of rain in inches
+                showers (float): amount of showers in inches
+                snowfall (float): amount of snowfall in inches
+                uv_index_max(float): highest uv index rating for the day
+        """
         self.date = date
         self.temperature = temperature
         self.max_temperature = max_temperature
@@ -77,9 +91,14 @@ class Forecast():
         self.uv_index_max = uv_index_max
     
     def __repr__(self):
+        """This function prints out the weather statistics that were initialized in the init function
+
+            Returns:
+                A string of the weather statistics like temperature, precipitation chance, etc
+        """
         # basic weather information
-        weather_info = (f"Date & Time: {self.date}\n\
-                \nThe current weather:\
+        weather_info = (f"{_bold}Date & Time:{bold_} {self.date}\n\
+                \n{_bold}The Current Weather:{bold_}\
                 \nTemperature: {round(self.temperature)}°F\nFeels Like: {round(self.feels_like)}°F\nHumidity: {round(self.humidity)}%\
                 \nPrecipitation Chance: {round(self.precipitation_chance)}%\nWind Speed: {round(self.wind_speed)} mph\
                 \nCloud Coverage: {round(self.cloud_coverage)}%\n \
@@ -183,9 +202,9 @@ class Forecast():
     
     def get_weather_summary(self, forecast):
         """Generates a summary of the current weather conditions.
-        
-        Returns:
-            str: a simple readable summary of the current weather conditions.
+
+            Returns:
+                str: a simple readable summary of the current weather conditions.
         """
         summary = ""
 
@@ -377,8 +396,9 @@ def get_location(city:str, state:str=None, country:str=None, max_results=10):
 
 if __name__ == "__main__":
     # create a new Forecast object
+    print("Welcome to the WeatherFIT app!")
     weather = Forecast()
-    location = get_location("Tokyo") # example location, can be replaced with user input
+    location = get_location(input("Enter a city: ")) # asks the user to input a city to get the weather information
     
     weather.get_forecast(location[0], location[1]) # fetch the current weather forecast for the location
     comfort_index = weather.get_comfort_index()
@@ -387,6 +407,7 @@ if __name__ == "__main__":
     
     summary = weather.get_weather_summary(weather)
     
+    #prints all the forecast details of the location entered by the user
     print(weather)
     print(comfort_index)
     print(summary)

@@ -7,7 +7,7 @@ Group Members:
  
 Instructor: Professor Cruz
 Assignment: Final Project
-Date: 05/10/2025
+Date: 05/16/2025
  
 This program reads data from a weather API and determines the upcoming forecast.
 The app will then suggest clothing that would be appropriate for the weather conditions.
@@ -86,7 +86,7 @@ class Outfits():
         if self.snowfall > 0:
             outfit.append('snow boots')
                       
-        print (f"{_bold}Recommended Outfit{bold_}: {', '.join(outfit)}\n")
+        print (f"{_bold}Recommended Outfit{bold_}: {', '.join(outfit)}\n") #outputs the recommended outfit combining all of the previous appends
         return (outfit)
     
     def customize_outfit(self, user_preferences):
@@ -206,7 +206,7 @@ class Outfits():
         if not accessories:
             return("The weather calls for no extras!")
 
-        return f"{_bold}Recommended accessories{bold_}: {', '.join(accessories)}\n"
+        return f"{_bold}Recommended accessories{bold_}: {', '.join(accessories)}\n" #returns a properly formatted string of the recommended accessories
     
  
 if __name__ == "__main__":

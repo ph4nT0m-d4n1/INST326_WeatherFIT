@@ -23,7 +23,7 @@ pip install requests-cache retry-requests numpy pandas
 - [x] add function for current (immediate) weather
 - [x] add function to convert city names into latitudes and longitudes (using Open-meteo's geocoding API)
 - [x] add function for daily / hourly weather
-- [ ] expand outfit class
-- [ ] expand weather class
+- [x] expand outfit class
+- [x] expand weather class
 - [ ] add unit tests for weather module
 - [ ] add unit tests for outfit module

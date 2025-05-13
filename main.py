@@ -1,3 +1,17 @@
+"""WeatherFIT, an INST326 project
+Group Members:
+    Danny Mallya
+    Bella Konrad
+    Jaden Shin
+    Marvin Gomez Molina
+ 
+Instructor: Professor Cruz
+Assignment: Final Project
+Date: 05/16/2025
+ 
+This program reads data from a weather API and determines the upcoming forecast.
+The app will then suggest clothing that would be appropriate for the weather conditions.
+"""
 #import libraries for weather forecast and outfit recommendations
 import outfit as fit
 import weather as w
