@@ -39,22 +39,18 @@ def parse_args(args_list):
     parser.add_argument("--state", type=str, help="The name of the state that the city is in")
     parser.add_argument("--country", type=str, help="The name of the countr the city is in")
     
-    parser.add_argument("--style", type=str, help="The clothing style you prefer")
-    parser.add_argument("--fabric", type=str, help="The fabric you prefer")
-    parser.add_argument("--activity", type=str, help="The type of activity you will be doing")
     args = parser.parse_args(args_list)
     
     return args
 
 if __name__ == "__main__":
-    weather = w.Forecast()
     args = parse_args(sys.argv[1:])
     
     location = w.get_location(args.city, args.state) # get coordinates for the specified location
+    weather = w.Forecast(location[0], location[1])
     
-    weather.get_forecast(location[0], location[1]) # fetch the current weather forecast for the location
     comfort_index = weather.get_comfort_index()
-    comparison = weather.compare_with_yesterday(weather.get_forecast(location[0], location[1]))
+    comparison = weather.compare_with_yesterday(weather.get_past_forecast(location[0], location[1]))
     summary = weather.get_weather_summary(weather)
     
     print(weather)
@@ -63,13 +59,15 @@ if __name__ == "__main__":
     print(comparison)
     
     
-    outfit = fit.Outfits(weather) # create an Outfits object with the weather forecast
+    outfit = fit.Outfits(weather) # create an Outfits object with the provided weather forecast
     
-    customized_outfit = outfit.customize_outfit({
-        'clothing style': args.style,
-        'fabric': args.fabric,
-        'activity_type': args.activity
+    if (input("Do you want to customize your outfit? ").lower() == "yes"):
+        customized_outfit = outfit.customize_outfit({
+        'clothing style': input("Choose an Outfit Style (casual, formal, or active): "),
+        'fabric': input("Choose a Fabric Type (breathable, warm, waterproof): "),
+        'activity_type': input("Choose an Activity Type (gym, formal): ")
     })
-    
-    print(customized_outfit) # print the customized outfit suggestion
+        print(customized_outfit) # print the recommended and customized outfit suggestion
+    else:
+        outfit.outfit_options() # print the recommended outfit suggestion
     

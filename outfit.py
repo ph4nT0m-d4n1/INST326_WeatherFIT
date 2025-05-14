@@ -24,6 +24,9 @@ class Outfits():
     Args:
         forecast (Forecast): The weather forecast object containing weather details.
         user_preferences (dict): A dictionary of user preferences for clothing.
+    
+    Side Effects:
+        prints the recommended outfit to the console
      
     Returns:
         outfit (list): A list of clothing items suitable for the weather and user preferences.
@@ -210,9 +213,8 @@ class Outfits():
     
  
 if __name__ == "__main__":
-    weather = w.Forecast()
     location = w.get_location("San Francisco", "California", "United States")  # example location
-    weather.get_forecast(location[0], location[1])
+    weather = w.Forecast(location[0], location[1])
     print(weather)
 
     outfit_recommender = Outfits(weather)

@@ -21,7 +21,6 @@ def test_get_location():
     assert weather.get_location("San Francisco", "California", "United States") == (37.77493, -122.41942)
     assert weather.get_location("Melbourne", country="Australia", max_results=1) == (-37.814, 144.96332)
     assert weather.get_location("Athens") == (37.98376, 23.72784)
-    
 
 def test_forecast():
     """Test the Forecast class and its methods."""
@@ -41,7 +40,7 @@ def test_forecast():
         uv_index_max=5
     )
     # test the attributes of the forecast object
-    assert forecast.date == weather.datetime.now().strftime("%Y-%m-%d, %H:%M")
+    assert forecast.date == weather.datetime.now().strftime("%Y-%m-%d, %H:%M"), "Weather should match the"
     assert forecast.temperature == 75, "Temperature should be 75"
     assert forecast.max_temperature == 80, "Max temperature should be 80"
     assert forecast.min_temperature == 70, "Min temperature should be 70"

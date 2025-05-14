@@ -43,88 +43,7 @@ class Forecast():
             snowfall (float): amount of snowfall in inches
             uv_index_max(float): highest uv index rating for the day
     """
-    def __init__(self, 
-                date=None, 
-                temperature=None,
-                max_temperature=None,
-                min_temperature=None,
-                feels_like=None,
-                max_feels_like=None,
-                min_feels_like=None,
-                humidity=None, 
-                precipitation_chance=None, 
-                cloud_coverage=None, 
-                wind_speed=None,
-                rain=None,
-                showers=None,
-                snowfall=None,
-                uv_index_max=None
-            ):
-        """This function initializes all the data that will be displayed on the weather app
-            Attributes:
-                date (str): the date and time for the forecast in format YYYY-MM-DD, HH:MM
-                temperature (float): the temperature in fahrenheit for the day
-                feels_like (float): what the temperature feels like due to humidity, wind, etc.
-                humidity (float): the humidity percentage for the day
-                precipitation_chance (float): chance of precipitation for the day as a percentage
-                cloud_coverage (float): percentage of cloud coverage for the day
-                wind_speed (float): the wind speed in miles per hour for the day
-                rain (float): amount of rain in inches
-                showers (float): amount of showers in inches
-                snowfall (float): amount of snowfall in inches
-                uv_index_max(float): highest uv index rating for the day
-        """
-        self.date = date
-        self.temperature = temperature
-        self.max_temperature = max_temperature
-        self.min_temperature = min_temperature
-        self.feels_like = feels_like
-        self.max_feels_like = max_feels_like
-        self.min_feels_like = min_feels_like
-        self.humidity = humidity
-        self.precipitation_chance = precipitation_chance
-        self.cloud_coverage = cloud_coverage
-        self.wind_speed = wind_speed
-        self.rain = rain
-        self.showers = showers
-        self.snowfall = snowfall
-        self.uv_index_max = uv_index_max
-    
-    def __repr__(self):
-        """This function prints out the weather statistics that were initialized in the init function
-
-            Returns:
-                A string of the weather statistics like temperature, precipitation chance, etc
-        """
-        # basic weather information
-        weather_info = (f"{_bold}Date & Time:{bold_} {self.date}\n\
-                \n{_bold}The Current Weather:{bold_}\
-                \nTemperature: {round(self.temperature)}°F\nFeels Like: {round(self.feels_like)}°F\nHumidity: {round(self.humidity)}%\
-                \nPrecipitation Chance: {round(self.precipitation_chance)}%\nWind Speed: {round(self.wind_speed)} mph\
-                \nCloud Coverage: {round(self.cloud_coverage)}%\n \
-                \nToday's High: {round(self.max_temperature)}°F\nToday's Low: {round(self.min_temperature)}°F\
-                \nFeels Like High: {round(self.max_feels_like)}°F\nFeels Like Low: {round(self.min_feels_like)}°F\
-                \nUV Index: {round(self.uv_index_max)}\n")
-        
-        # only add precipitation information if it exists
-        if self.rain > 0:
-            weather_info += f"Rain: {self.rain} inches\n"
-        if self.showers > 0:
-            weather_info += f"Showers: {self.showers} inches\n"
-        if self.snowfall > 0:
-            weather_info += f"Snowfall: {self.snowfall} inches\n"
-        return weather_info
-
-    def get_forecast(self, latitude, longitude):
-        """Fetches the current weather forecast data from Open-Meteo API.
-
-        This method makes an API call to Open-Meteo with the given coordinates,
-        then populates the Forecast object's attributes with the retrieved data.
-
-        Args:
-            latitude (float): the latitude of the location
-            longitude (float): the longitude of the location
-        """
+    def __init__(self, latitude, longitude):
         # the code below is provided by the Open-Meteo API documentation
         cache_session = requests_cache.CachedSession('.cache', expire_after = 3600) # cache requests for 1 hour to reduce API calls
         retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2) # retry up to 5 times if a request fails
@@ -190,6 +109,87 @@ class Forecast():
         self.max_feels_like = daily.Variables(2).ValuesAsNumpy()[1]
         self.min_feels_like = daily.Variables(3).ValuesAsNumpy()[1]
         self.uv_index_max = daily.Variables(4).ValuesAsNumpy()[1]
+    
+    def __repr__(self):
+        """This function prints out the weather statistics that were initialized in the init function
+
+            Returns:
+                A string of the weather statistics like temperature, precipitation chance, etc
+        """
+        # basic weather information
+        weather_info = (f"{_bold}Date & Time:{bold_} {self.date}\n\
+                \n{_bold}The Current Weather:{bold_}\
+                \nTemperature: {round(self.temperature)}°F\nFeels Like: {round(self.feels_like)}°F\nHumidity: {round(self.humidity)}%\
+                \nPrecipitation Chance: {round(self.precipitation_chance)}%\nWind Speed: {round(self.wind_speed)} mph\
+                \nCloud Coverage: {round(self.cloud_coverage)}%\n \
+                \nToday's High: {round(self.max_temperature)}°F\nToday's Low: {round(self.min_temperature)}°F\
+                \nFeels Like High: {round(self.max_feels_like)}°F\nFeels Like Low: {round(self.min_feels_like)}°F\
+                \nUV Index: {round(self.uv_index_max)}\n")
+        
+        # only add precipitation information if it exists
+        if self.rain > 0:
+            weather_info += f"Rain: {self.rain} inches\n"
+        if self.showers > 0:
+            weather_info += f"Showers: {self.showers} inches\n"
+        if self.snowfall > 0:
+            weather_info += f"Snowfall: {self.snowfall} inches\n"
+            
+        return weather_info
+
+    def get_past_forecast(self, latitude, longitude):
+        """Fetches the current weather forecast data from Open-Meteo API.
+
+        This method makes an API call to Open-Meteo with the given coordinates,
+        then populates the Forecast object's attributes with the retrieved data.
+
+        Args:
+            latitude (float): the latitude of the location
+            longitude (float): the longitude of the location
+        
+        Returns:
+            tuple: a tuple containing various weather variables for yesterday's weather
+        """
+        # the three lines of code below are provided directly by the Open-Meteo API documentation
+        # additionally, much of the structure of the code in this function follows conventions outlined in the Open-Meteo API docs
+        cache_session = requests_cache.CachedSession('.cache', expire_after = 3600) # cache requests for 1 hour to reduce API calls
+        retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2) # retry up to 5 times if a request fails
+        openmeteo = openmeteo_requests.Client(session = retry_session)
+        
+        # define the API endpoint and parameters
+        # the order of variables in the "current" list is important as they map to Variables(index)
+        url = "https://api.open-meteo.com/v1/forecast"
+        params = {
+            "latitude": latitude, # use the latitude and longitude from the get_location function
+            "longitude": longitude,
+            "models": "best_match",  # using the best available weather model
+            "current": ["temperature_2m",
+                        "relative_humidity_2m",
+                        "precipitation_probability",
+                        "wind_speed_10m",
+                        "cloud_cover",
+                        "apparent_temperature",
+                        "rain",
+                        "showers",
+                        "snowfall"
+                    ],
+            "daily": ["temperature_2m_max",
+                      "temperature_2m_min",
+                      "apparent_temperature_max",
+                      "apparent_temperature_min",
+                      "uv_index_max"
+                    ], 
+            "timezone": "auto",  # automatically detect timezone based on coordinates
+            "past_days": 1, # retrieve data for the past day for comparison
+            "forecast_days": 1,  # retrieve forecast for today
+            "wind_speed_unit": "mph", # adjust wind speed unit to miles per hour
+            "temperature_unit": "fahrenheit", # adjust temperature unit to fahrenheit
+            "precipitation_unit": "inch" # adjust precipitation unit to inches
+        }
+        
+        responses = openmeteo.weather_api(url, params=params) # make the API request
+        response = responses[0] # process the first response (only one location was requested)
+
+        daily = response.Daily() # extract daily weather data
         
         # match the daily data with variables for yesterday's data
         yesterday_max_temperature = round(daily.Variables(0).ValuesAsNumpy()[0])
@@ -200,11 +200,12 @@ class Forecast():
         
         return (yesterday_max_temperature, yesterday_min_temperature, yesterday_max_feels_like, yesterday_min_feels_like, yesterday_uv_index_max)
     
+    
     def get_weather_summary(self, forecast):
         """Generates a summary of the current weather conditions.
 
             Returns:
-                str: a simple readable summary of the current weather conditions.
+                summary (str): a simple readable summary of the current weather conditions.
         """
         summary = ""
 
@@ -236,8 +237,11 @@ class Forecast():
     def get_comfort_index(self):
         """Calculates a comfort index based on temperature, humidity, and wind speed. Comfort scale goes from 1-10
         
+        Side Effects:
+            prints a string describing how comfortable the weather is based on the weather variables
+        
         Returns:
-            str: description with the comfort index value that indicates how comfortable the weather is.
+            comfort (int): the comfort index
         """
         comfort = 10
         reasons = []
@@ -292,7 +296,8 @@ class Forecast():
         elif comfort >= 2:
             description = f"very uncomfortable due to {', '.join(reasons)}"
         
-        return (f"{_bold}Daily Summary{bold_}\nToday's weather is {description} with a comfort index of {comfort} \n")
+        print (f"{_bold}Daily Summary{bold_}\nToday's weather is {description} with a comfort index of {comfort} \n")
+        return comfort
         
         
     def compare_with_yesterday(self, yesterday_forecast):
@@ -302,7 +307,7 @@ class Forecast():
             past_weather (Forecast): a Forecast object containing yesterday's weather data.
         
         Returns:
-            str: a comparison of today's weather with yesterday's weather.
+            str: a list of comparisons between today's weather with yesterday's weather.
         """
         past_weather_info = (f"Yesterday's High: {yesterday_forecast[0]}°F\n\
                 Yesterday's Low: {yesterday_forecast[1]}°F\n\
@@ -358,7 +363,7 @@ def get_location(city:str, state:str=None, country:str=None, max_results=10):
         max_results (int, optional): the maximum number of results to return. Defaults to 10.
     
     Returns:
-        tuple: A tuple containing (latitude, longitude) coordinates, or None if failed
+        tuple: A tuple containing (latitude, longitude) coordinates or None if failed
     """
     # replace spaces with plus signs for the URL
     city = city.replace(" ", "+")
@@ -398,13 +403,13 @@ def get_location(city:str, state:str=None, country:str=None, max_results=10):
 if __name__ == "__main__":
     # create a new Forecast object
     print("Welcome to the WeatherFIT app!")
-    weather = Forecast()
-    location = get_location(input("Enter a city: ")) # asks the user to input a city to get the weather information
     
-    weather.get_forecast(location[0], location[1]) # fetch the current weather forecast for the location
+    location = get_location(input("Enter a city: ")) # asks the user to input a city to get the weather information
+    weather = Forecast(location[0], location[1]) # fetch the current weather forecast for the location
+    
     comfort_index = weather.get_comfort_index()
     
-    comparison = weather.compare_with_yesterday(weather.get_forecast(location[0], location[1]))
+    comparison = weather.compare_with_yesterday(weather.get_past_forecast(location[0], location[1]))
     
     summary = weather.get_weather_summary(weather)
     
