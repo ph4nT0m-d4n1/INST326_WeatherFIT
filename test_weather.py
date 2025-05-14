@@ -7,17 +7,27 @@ Group Members:
 
 Instructor: Professor Cruz
 Assignment: Final Project
-Date: 05/10/2025
+Date: 05/16/2025
 
 This module contains unit tests for the weather.py module.
 """
+import weather
 
-import weather as w
+def test_get_location():
+    """Tests the get_location method in the weather.py module"""
+    # using pre-tested coordinates to test the return values of some cities
+    assert weather.get_location("Tokyo", country="Japan") == (35.6895, 139.69171)
+    assert weather.get_location("College Park", "Maryland") == (38.98067, -76.93692)
+    assert weather.get_location("San Francisco", "California", "United States") == (37.77493, -122.41942)
+    assert weather.get_location("Melbourne", country="Australia", max_results=1) == (-37.814, 144.96332)
+    assert weather.get_location("Athens") == (37.98376, 23.72784)
+    
 
 def test_forecast():
     """Test the Forecast class and its methods."""
     # create a mock forecast object with sample data
-    forecast = w.Forecast(
+    forecast = weather.Forecast(
+        date = weather.datetime.now().strftime("%Y-%m-%d, %H:%M"),
         temperature=75,
         max_temperature=80,
         min_temperature=70,
@@ -30,8 +40,8 @@ def test_forecast():
         cloud_coverage=30,
         uv_index_max=5
     )
-    
     # test the attributes of the forecast object
+    assert forecast.date == weather.datetime.now().strftime("%Y-%m-%d, %H:%M")
     assert forecast.temperature == 75, "Temperature should be 75"
     assert forecast.max_temperature == 80, "Max temperature should be 80"
     assert forecast.min_temperature == 70, "Min temperature should be 70"

@@ -387,6 +387,7 @@ def get_location(city:str, state:str=None, country:str=None, max_results=10):
         
         print(f"{_bold}First Location{bold_}: {first_result['name']} - {first_result['admin1']}, {first_result['country']}")
         print(f"{_bold}Timezone{bold_}: {first_result['timezone']}\n")
+        
         return latitude, longitude
         
     elif geo_location.status_code != 200:
