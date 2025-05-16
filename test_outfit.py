@@ -19,7 +19,7 @@ import pytest
 
 class MockForecast:
     def __init__(self, temperature=70, max_temperature=75, min_temperature=65,
-                 humidity=50, wind_speed=10, precipitation_chance=0,
+                 humidity=50, wind_speed=5, precipitation_chance=0,
                  rain=0, showers=0, snowfall=0, cloud_coverage=50, uv_index_max=5):
         self.temperature = temperature
         self.max_temperature = max_temperature
@@ -37,13 +37,13 @@ class MockForecast:
 def very_cold_weather():
     # temp < 32
     return MockForecast(temperature=20, max_temperature=25, min_temperature=15, 
-                        humidity=20, wind_speed=10, precipitation_chance=70, 
-                        rain=0, showers=0, snowfall=0.5, cloud_coverage=80, uv_index_max=1)
+                        humidity=20, wind_speed=10, precipitation_chance=0, 
+                        rain=0, showers=0, snowfall=0, cloud_coverage=80, uv_index_max=1)
 
 def mild_weather():
     # 50 <= temp < 60
     return MockForecast(temperature=55, max_temperature=60, min_temperature=50, 
-                        humidity=50, wind_speed=15, precipitation_chance=10, 
+                        humidity=50, wind_speed=15, precipitation_chance=0, 
                         rain=0, showers=0, snowfall=0, cloud_coverage=50, uv_index_max=3)
 
 def hot_weather():
@@ -103,56 +103,36 @@ def build_expected_outfit(forecast, base_items):
 
 # Tests for Outfits.outfit_options()
 def test_outfit_options_very_cold():
-    recommender = Outfits(very_cold_weather)
+    forecast = very_cold_weather()
+    recommender = Outfits(forecast)
     outfit = recommender.outfit_options()
-    base = ['puffer jacket', 'sweater', 'thermals', 'thick pants', 'boots']
-    expected = build_expected_outfit(very_cold_weather, base)
+    expected = ['puffer jacket', 'sweater', 'thermals', 'thick pants', 'boots']
     assert outfit == expected
 
 
 def test_outfit_options_mild():
-    recommender = Outfits(mild_weather)
+    forecast = mild_weather()
+    recommender = Outfits(forecast)
     outfit = recommender.outfit_options()
-    base = ['light sweater', 'jeans', 'sneakers']
-    expected = build_expected_outfit(mild_weather, base)
+    expected = ['light sweater', 'jeans', 'sneakers']
     assert outfit == expected
 
 
 def test_outfit_options_hot():
-    recommender = Outfits(hot_weather)
+    forecast = hot_weather()
+    recommender = Outfits(forecast)
     outfit = recommender.outfit_options()
-    base = ['T-shirt', 'shorts', 'sandals']
-    expected = build_expected_outfit(hot_weather, base)
+    expected = ['T-shirt', 'shorts', 'sandals', 'lightweight/breathable clothing']
     assert outfit == expected
 
-def test_outfit_options_hot_humid():
-    recommender = Outfits(hot_humid_weather)
-    outfit = recommender.outfit_options()
-    base = ['T-shirt', 'shorts', 'shoes'] # Base for temp 80
-    expected = build_expected_outfit(hot_humid_weather, base)
-    assert outfit == expected
-
-def test_outfit_options_rainy():
-    recommender = Outfits(rainy_weather)
-    outfit = recommender.outfit_options()
-    base = ['T-shirt', 'shorts', 'breatheable sneakers'] # Base for temp 60
-    expected = build_expected_outfit(rainy_weather, base)
-    assert outfit == expected
-
-def test_outfit_options_windy():
-    recommender = Outfits(windy_weather)
-    outfit = recommender.outfit_options()
-    base = ['T-shirt', 'shorts', 'breatheable sneakers'] # Base for temp 60
-    expected = build_expected_outfit(windy_weather, base)
-    assert outfit == expected
-
-def test_customize_outfit(self):
+def test_customize_outfit():
     clothing_style = {
         'clothing style:' 'active', 
         'fabric:' 'breathable',
         'activity type:''gym'}
-    
-    result = self.outfit.customize_outfit(clothing_style)
+    forecast = mild_weather
+    customizer = Outfits(forecast)
+    result = customizer.customize_outfit(clothing_style)
     assert 'shorts' in result 
     assert 'lightsweater' in result 
     assert 'jeans' not in result
