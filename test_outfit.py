@@ -69,6 +69,20 @@ def windy_weather():
     return MockForecast(temperature=60, max_temperature=65, min_temperature=55, 
                         humidity=60, wind_speed=25, precipitation_chance=10, 
                         rain=0, showers=0, snowfall=0, cloud_coverage=50, uv_index_max=4)
+    
+def steady_weather():
+    # 50 <= temp < 55
+    return MockForecast(temperature=55, max_temperature=55, min_temperature=50, 
+                        humidity=50, wind_speed=15, precipitation_chance=10, 
+                        rain=0, showers=0, snowfall=0, cloud_coverage=50, uv_index_max=3)
+
+def extreme_weather():
+    # 40 <= temp < 65
+    return MockForecast(temperature=55, max_temperature=65, min_temperature=40, 
+                        humidity=50, wind_speed=15, precipitation_chance=10, 
+                        rain=0, showers=0, snowfall=0, cloud_coverage=50, uv_index_max=3)
+    
+
 
 # Helper to build expected outfit list for outfit_options
 def build_expected_outfit(forecast, base_items):
@@ -143,5 +157,28 @@ def test_customize_outfit(self):
     assert 'lightsweater' in result 
     assert 'jeans' not in result
 
+#layering tests
+def test_layering_too_warm():
+    tester = Outfits(hot_weather)
+    layer = tester.layering_recommendations()
+    
+    assert layer == """Weather is considerably warm all day. Wear something
+                    loose and light on top if you want to cover up."""
+                    
+def test_layering_small_difference():
+    tester = Outfits(steady_weather)
+    layer = tester.layering_recommendations()
+    assert layer == """Weather will remain constant throughout the day 
+                    (within 5\xb0F). Layering Optional."""
 
+def test_layering_extreme_difference():
+    tester = Outfits(extreme_weather)
+    layer = tester.layering_recommendations()
+    assert layer == f"Drastic variety in temperature today (over 25\xb0F).\
+                \nBe prepared to layer, making sure you have on a lighter outfit\
+                \nfor the high temperature of {round(tester.self.high_temp)}\xb0F\
+                \nand warmer outerwear for the low temperature of\
+                    \n{round(tester.self.low_temp)}\xb0F.\n"
+                    
+    
     
