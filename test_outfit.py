@@ -160,5 +160,24 @@ def test_layering_extreme_difference():
                 \nand warmer outerwear for the low temperature of\
                     \n{round(tester.self.low_temp)}\xb0F.\n"
                     
+def test_recommended_accesories_sunny_high_uv():
+    forecast= MockForecast(temperature=75, uv_index_max=8, cloud_coverage=10)
+    recommended = Outfits(forecast)
+    accesories = recommended.recommended_accessories()
+    assert accesories == """sun hat """ 
+    assert accesories == """30+ SPF sunscreen"""
     
+def test_recommended_accesories_cold_weather():
+    forecast= MockForecast(temperature=28, uv_index_max=2, cloud_coverage=10)
+    recommended = Outfits(forecast)
+    accesories = recommended.recommended_accessories()
+    assert accesories == """gloves """ 
+    assert accesories == """scarf"""
+    assert accesories == """beanie"""
+    
+def test_recommended_accesories_sunglassesonly():
+    forecast= MockForecast(temperature=70, uv_index_max=5, cloud_coverage=50)
+    recommended = Outfits(forecast)
+    accesories = recommended.recommended_accessories()
+    assert accesories == """sunglasses """     
     
