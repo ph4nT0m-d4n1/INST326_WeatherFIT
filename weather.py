@@ -255,7 +255,7 @@ class Forecast():
         
         # temperature deductions
         if self.temperature > 95 or self.feels_like > 95 or self.temperature < 20 or self.feels_like < 20:
-            comfort -= 3
+            comfort -= 4
             reasons.append("extreme temperatures")
         elif self.temperature > 85 or self.feels_like > 85 or self.temperature < 32 or self.feels_like < 32:
             comfort -= 2
@@ -284,15 +284,15 @@ class Forecast():
             reasons.append("moderate wind speeds")
         
         # humidity deductions    
-        if self.humidity < 15:
-            comfort -= 1
-            reasons.append("dry air")
+        if self.humidity > 80:
+            comfort -= 4
+            reasons.append("very high humidity")
         elif self.humidity > 55:
             comfort -= 2
             reasons.append("moderately high humidity")
-        elif self.humidity > 80:
-            comfort -= 3
-            reasons.append("very high humidity")
+        elif self.humidity < 15:
+            comfort -= 1
+            reasons.append("dry air")
         
         if comfort >= 9:
             description = "very comfortable"
