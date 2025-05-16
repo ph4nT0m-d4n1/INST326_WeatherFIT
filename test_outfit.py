@@ -132,5 +132,16 @@ def test_outfit_options_windy():
     expected = build_expected_outfit(windy_weather, base)
     assert outfit == expected
 
+def test_customize_outfit(self):
+    clothing_style = {
+        'clothing style:' 'active', 
+        'fabric:' 'breathable',
+        'activity type:''gym'}
+    
+    result = self.outfit.customize_outfit(clothing_style)
+    assert 'shorts' in result 
+    assert 'lightsweater' in result 
+    assert 'jeans' not in result
+
 
     
