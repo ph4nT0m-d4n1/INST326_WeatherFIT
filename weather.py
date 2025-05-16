@@ -9,12 +9,11 @@ Instructor: Professor Cruz
 Assignment: Final Project
 Date: 05/10/2025
 
-This program reads data from a weather api and determines the upcoming forecast. 
-The app will then suggest clothing that would be appropriate for the weather condtions.
+This module reads data from a weather API and determines the upcoming forecast. 
 """
-#install the following required packages: use pip or pip3 depending on your system
-#pip install openmeteo-requests
-#pip install requests-cache retry-requests
+# install the following required packages: use pip or pip3 depending on your system
+# pip install openmeteo-requests
+# pip install requests-cache retry-requests
 
 # import libraries for API requests and caching
 import openmeteo_requests  # library for accessing the Open-Meteo weather API
@@ -30,6 +29,10 @@ bold_ = "\033[0;0m" # ANSI escape code to reset text formatting
 
 class Forecast():
     """This class is used to get the weather forecast for a given location and date.
+        Args:
+            latitude (float): the latitude of the location
+            longitude (float): the longitude of the location
+            
         Attributes:
             date (str): the date and time for the forecast in format YYYY-MM-DD, HH:MM
             temperature (float): the temperature in fahrenheit for the day
@@ -41,10 +44,14 @@ class Forecast():
             rain (float): amount of rain in inches
             showers (float): amount of showers in inches
             snowfall (float): amount of snowfall in inches
-            uv_index_max(float): highest uv index rating for the day
+            uv_index_max (float): highest uv index rating for the day
+        
+        Side Effects:
+            makes a request to the Open-Meteo weather API
     """
     def __init__(self, latitude, longitude):
-        # the code below is provided by the Open-Meteo API documentation
+        # the three lines of code below are provided directly by the Open-Meteo API documentation
+        # additionally, much of the structure of the code in this function follows conventions outlined in the Open-Meteo API docs
         cache_session = requests_cache.CachedSession('.cache', expire_after = 3600) # cache requests for 1 hour to reduce API calls
         retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2) # retry up to 5 times if a request fails
         openmeteo = openmeteo_requests.Client(session = retry_session)
@@ -73,7 +80,6 @@ class Forecast():
                       "uv_index_max"
                     ], 
             "timezone": "auto",  # automatically detect timezone based on coordinates
-            "past_days": 1, # retrieve data for the past day for comparison
             "forecast_days": 1,  # retrieve forecast for today
             "wind_speed_unit": "mph", # adjust wind speed unit to miles per hour
             "temperature_unit": "fahrenheit", # adjust temperature unit to fahrenheit
@@ -82,8 +88,6 @@ class Forecast():
         
         responses = openmeteo.weather_api(url, params=params) # make the API request
         response = responses[0] # process the first response (only one location was requested)
-
-        # print(f"Timezone: {response.Timezone()}{response.TimezoneAbbreviation()}\n") # print the timezone information
         
         current = response.Current() # extract current weather data
         daily = response.Daily() # extract daily weather data
@@ -104,11 +108,11 @@ class Forecast():
         
         # the index corresponds to the order in the "daily" list in params
         # using [0] to get the first value since daily returns a numpy array
-        self.max_temperature = daily.Variables(0).ValuesAsNumpy()[1]
-        self.min_temperature = daily.Variables(1).ValuesAsNumpy()[1]
-        self.max_feels_like = daily.Variables(2).ValuesAsNumpy()[1]
-        self.min_feels_like = daily.Variables(3).ValuesAsNumpy()[1]
-        self.uv_index_max = daily.Variables(4).ValuesAsNumpy()[1]
+        self.max_temperature = daily.Variables(0).ValuesAsNumpy()[0]
+        self.min_temperature = daily.Variables(1).ValuesAsNumpy()[0]
+        self.max_feels_like = daily.Variables(2).ValuesAsNumpy()[0]
+        self.min_feels_like = daily.Variables(3).ValuesAsNumpy()[0]
+        self.uv_index_max = daily.Variables(4).ValuesAsNumpy()[0]
     
     def __repr__(self):
         """This function prints out the weather statistics that were initialized in the init function
@@ -148,6 +152,9 @@ class Forecast():
         
         Returns:
             tuple: a tuple containing various weather variables for yesterday's weather
+            
+        Side Effects:
+            makes a request to the Open-Meteo weather API
         """
         # the three lines of code below are provided directly by the Open-Meteo API documentation
         # additionally, much of the structure of the code in this function follows conventions outlined in the Open-Meteo API docs
@@ -277,13 +284,13 @@ class Forecast():
             reasons.append("moderate wind speeds")
         
         # humidity deductions    
-        if self.humidity < 10:
+        if self.humidity < 15:
             comfort -= 1
             reasons.append("dry air")
-        elif self.humidity > 50:
+        elif self.humidity > 55:
             comfort -= 2
             reasons.append("moderately high humidity")
-        elif self.humidity > 90:
+        elif self.humidity > 80:
             comfort -= 3
             reasons.append("very high humidity")
         
@@ -364,6 +371,9 @@ def get_location(city:str, state:str=None, country:str=None, max_results=10):
     
     Returns:
         tuple: A tuple containing (latitude, longitude) coordinates or None if failed
+        
+    Side Effects:
+        makes a request to the Open-Meteo geocoding API
     """
     # replace spaces with plus signs for the URL
     city = city.replace(" ", "+")
@@ -376,35 +386,41 @@ def get_location(city:str, state:str=None, country:str=None, max_results=10):
         # parse the JSON response
         data = geo_location.json()
         
+        # check if the "results" key exists in the returned data
+        if 'results' in data:
         # if a state was specified, try to find a match with both city and state
-        for result in data['results']:
-            if (state != None and result['admin1'] == state) or (country != None and result['country'] == country):
-                latitude = result['latitude']
-                longitude = result['longitude']
-                print(f"{_bold}Location{bold_}: {result['name']} - {result['admin1']}, {result['country']}")
-                print(f"{_bold}Timezone{bold_}: {result['timezone']}\n")
-                return latitude, longitude
+            for result in data['results']:
+                if (state != None and result['admin1'] == state) or (country != None and result['country'] == country):
+                    latitude = result['latitude']
+                    longitude = result['longitude']
+                    print(f"{_bold}Location{bold_}: {result['name']} - {result['admin1']}, {result['country']}")
+                    print(f"{_bold}Timezone{bold_}: {result['timezone']}\n")
+                    return latitude, longitude
+            
+            # if no specific match or no state/country was specified, use the first result
+            first_result = data['results'][0]
+            latitude = first_result['latitude']
+            longitude = first_result['longitude']
+            
+            print(f"{_bold}First Location{bold_}: {first_result['name']} - {first_result['admin1']}, {first_result['country']}")
+            print(f"{_bold}Timezone{bold_}: {first_result['timezone']}\n")
+            
+            return latitude, longitude
         
-        # if no specific match or no state/country was specified, use the first result
-        first_result = data['results'][0]
-        latitude = first_result['latitude']
-        longitude = first_result['longitude']
-        
-        print(f"{_bold}First Location{bold_}: {first_result['name']} - {first_result['admin1']}, {first_result['country']}")
-        print(f"{_bold}Timezone{bold_}: {first_result['timezone']}\n")
-        
-        return latitude, longitude
-        
-    elif geo_location.status_code != 200:
+        else:
+            # handle non existent cities
+            print(f"The city {city} does not exist")
+            return None
+    else:
         # handle API errors
-        print(f"Error: {geo_location.status_code}")
-        return None
+        print(f"Status Code: {geo_location.status_code}")
+        quit()
 
 if __name__ == "__main__":
-    # create a new Forecast object
     print("Welcome to the WeatherFIT app!")
     
     location = get_location(input("Enter a city: ")) # asks the user to input a city to get the weather information
+    # create a new Forecast object
     weather = Forecast(location[0], location[1]) # fetch the current weather forecast for the location
     
     comfort_index = weather.get_comfort_index()
@@ -413,7 +429,7 @@ if __name__ == "__main__":
     
     summary = weather.get_weather_summary(weather)
     
-    #prints all the forecast details of the location entered by the user
+    # prints all the forecast details of the location entered by the user
     print(weather)
     print(comfort_index)
     print(summary)
